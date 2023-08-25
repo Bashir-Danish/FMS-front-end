@@ -1,0 +1,81 @@
+//
+// Color system
+//
+
+// stylelint-disable
+$backGround: rgba(46, 55, 97, 0.05);
+$white:    #fff !default;
+
+
+$gray-1: #f2f2f2 !default;
+$gray-2: #e6e6e6 !default;
+$gray-3: #d9d9d9 !default;
+$gray-4: #cccccc !default;
+$gray-5: #bfbfbf !default;
+$gray-6: #b3b3b3 !default;
+$gray-7: #a6a6a6 !default;
+$gray-8: #999999 !default;
+$gray-9: #8c8c8c !default;
+$gray-10: #808080 !default;
+$gray-11: #818181 !default;
+$gray-12: #737373 !default;
+$gray-13: #666666 !default;
+$gray-14: #595959 !default;
+$gray-15: #4d4d4d !default;
+$gray-16: #404040 !default;
+$gray-17: #333333 !default;
+$gray-18: #262626 !default;
+$gray-19: #1a1a1a !default;
+$gray-20: #0d0d0d !default;
+
+
+
+// $gray-1: #f2f2f2 !default;
+// $gray-2: #d9d9d9 !default;
+// $gray-3: #bfbfbf !default;
+// $gray-4: #a6a6a6 !default;
+// $gray-5: #8c8c8c !default;
+// $gray-6: #737373 !default;
+// $gray-7: #595959 !default;
+// $gray-8: #404040 !default;
+// $gray-9: #262626 !default;
+
+$bgOp-1 : rgba(255, 255, 255, 0.111) !default;
+$bgOp-2 : rgba(255, 255, 255, 0.222) !default;
+$bgOp-3 : rgba(255, 255, 255, 0.333) !default;
+$bgOp-4 : rgba(255, 255, 255, 0.444) !default;
+$bgOp-5 : rgba(255, 255, 255, 0.555) !default;
+$bgOp-6 : rgba(255, 255, 255, 0.666) !default;
+$bgOp-7 : rgba(255, 255, 255, 0.777) !default;
+$bgOp-8 : rgba(255, 255, 255, 0.888) !default;
+$bgOp-9 : rgba(255, 255, 255, 0.9) !default;
+
+$dOp-1 : rgba(0, 0, 0, 0.111) !default;
+$dOp-2 : rgba(0, 0, 0, 0.222) !default;
+$dOp-3 : rgba(0, 0, 0, 0.333) !default;
+$dOp-4 : rgba(0, 0, 0, 0.444) !default;
+$dOp-5 : rgba(0, 0, 0, 0.555) !default;
+$dOp-6 : rgba(0, 0, 0, 0.666) !default;
+$dOp-7 : rgba(0, 0, 0, 0.777) !default;
+$dOp-8 : rgba(0, 0, 0, 0.888) !default;
+$dOp-9 : rgba(0, 0, 0, 0.9) !default;
+
+$black:    #000 !default;
+
+$lightBlue:    #0086ff !default;
+$blue:    #0b65a8 !default;
+$indigo:  #6610f2 !default;
+$purple:  #6f42c1 !default;
+$pink:    #e83e8c !default;
+$red:     #dc3545 !default;
+$orange:  #fd7e14 !default;
+$yellow:  #ffc107 !default;
+$green:   #159347 !default;
+$teal:    #20c997 !default;
+$cyan:    #17a2b8 !default;
+
+$primary: #007bff;
+
+
+$color-border: #ccc;
+
