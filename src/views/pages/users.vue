@@ -146,7 +146,7 @@ onMounted(async () => {
             <div class="image-input">
               <label for="image">پروفایل</label>
               <div class="dropzone">
-                <dropZone />
+                <dropZone store="user"/>
               </div>
             </div>
   
@@ -465,7 +465,7 @@ ul {
           cursor: pointer;
 
           &:first-child {
-            background-color: $green;
+            background-color: $primary;
           }
 
           &:last-child {

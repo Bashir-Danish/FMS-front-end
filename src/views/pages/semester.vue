@@ -389,7 +389,7 @@ ul {
           cursor: pointer;
 
           &:first-child {
-            background-color: $green;
+            background-color: $primary;
           }
 
           &:last-child {

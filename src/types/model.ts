@@ -25,13 +25,17 @@ export interface Student {
   fname: string;
   ssid: number;
   department_id: number;
+  picture: string; 
+  current_semester:number
 }
+
 
 export interface Subject {
   subject_id: number;
-  user_id: number;
-  department_id: number;
   name: string;
+  credit: number;
+  department_id: number;
+  semester_id:number;
 }
 
 export interface Enrollment {

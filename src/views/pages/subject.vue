@@ -1,136 +1,294 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { mainStore } from '@/stores/main';
-import { type Semester } from '@/types/model';
+import { type Semester, type Department } from '@/types/model';
 import { Icon } from "@vicons/utils";
 import { Delete24Regular } from "@vicons/fluent";
+import subjectItems from "@/components/smallcomponents/subjectItems.vue"
 import BaseInput from "@/components/smallcomponents/baseinput.vue";
 import {
   Add,
   PencilOutline,
 } from "@vicons/ionicons5";
 const useMain = mainStore();
+const semesterDrop = ref(false)
+const departmentDrop = ref(false)
 
 const formData = ref({
+  department_id: 0,
+  semester_id: 0,
+  subjects: <any>[]
+});
+const sbjFormData = ref({
+  subject_id: 0,
+  credit: 0,
   name: '',
-  year: 0,
-  semester_number: 0
+  department_id: 0,
+  semester_id: 0
 });
 const showCreateForm = ref(false);
 const showUpdateForm = ref(false);
-const selectedSemester = ref<Semester | null>(null);
-const seasons = ['بهاری', 'تابستانی', 'خزانی', 'زمستانی'];
 
-const handleUpdate = (semester: Semester) => {
-  selectedSemester.value = semester;
-  formData.value = { ...semester };
+const selectedRecord = ref<any>([]);
+const selectedSubject = ref();
 
+const showSubjectCreateForm = ref(false);
+const showSubjectUpdateForm = ref(false);
+
+const handleRecordUpdate = (subject: any) => {
+  selectedRecord.value = subject;
   showUpdateForm.value = true;
 };
+const handleCreateSubject =()=>{
+  sbjFormData.value.name = ''
+  sbjFormData.value.credit =0
+  showSubjectCreateForm.value = true
+}
+const handleSubjectUpdate = (subject: any,dep_id:number,sem_id:number) => {
+  selectedSubject.value = subject;
+  selectedSubject.value.department_id = dep_id;
+  selectedSubject.value.semester_id = sem_id;
+  sbjFormData.value.name = subject.subject_name;
+  sbjFormData.value.credit =subject.credit;
+  showSubjectUpdateForm.value = true;
+};
+const createSingleSubject = async (dep_id:number,sem_id:number) => {
+  if (showSubjectCreateForm.value) {
+    try {
+      let data = {
+        department_id : dep_id,
+        semester_id:sem_id,
+        name: sbjFormData.value.name,
+        credit: sbjFormData.value.credit
+      }
+      await useMain.addSubjectToRecord(data);
+      showSubjectCreateForm.value = false 
+      sbjFormData.value.name = ''
+      sbjFormData.value.credit = 0
+      
+    } catch (error) {
+      console.error('Error creating user:', error);
+    }
+  } else if (selectedSubject.value && showSubjectUpdateForm.value) {
+    try {
+      let data = {
+        subject_id:selectedSubject.value.subject_id,
+        name: sbjFormData.value.name,
+        credit: sbjFormData.value.credit,
+        department_id : dep_id,
+        semester_id:sem_id,
+      }
 
+      await useMain.updateSubject(data);
+      showSubjectUpdateForm.value = false 
+      sbjFormData.value.name = ''
+      sbjFormData.value.credit = 0
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
+    // formData.value.name = ''
+    // formData.value.fname = ''
+    // formData.value.ssid = 0
+    // formData.value.department_id = 0
+  }
+};
 const handleSubmit = async () => {
   if (showCreateForm.value) {
     try {
-      await useMain.createSemester(formData.value);
+      formData.value.subjects = useMain.subjectItems;
+      await useMain.createSubject(formData.value);
       closeForm();
     } catch (error) {
       console.error('Error creating semester:', error);
     }
-  } else if (showUpdateForm.value && selectedSemester.value) {
-    try {
-      await useMain.updateSemester({
-        semester_id: selectedSemester.value.semester_id,
-        name: formData.value.name,
-        year: formData.value.year,
-        semester_number: formData.value.semester_number,
-      });
-      closeForm();
-    } catch (error) {
-      console.error('Error updating semester:', error);
-    }
   }
 };
-
-const handleDelete = async (id: number) => {
-  const shouldDelete = window.confirm("Are you sure you want to delete this semester?");
+const handleDelete = async (semesterId: number, departmentId: number) => {
+  const shouldDelete = window.confirm("Are you sure you want to delete this all ?");
   if (shouldDelete) {
     try {
-      await useMain.deleteSemester(id);
+      await useMain.deleteSubjectsBySemester(semesterId, departmentId);
     } catch (error) {
       console.log(error);
     }
   }
 };
-
+const deleteSingleSubject = async (item_id: number, semester_id: number, department_id: number) => {
+  const shouldDelete = window.confirm("Are you sure you want to delete this subject ?");
+  if (shouldDelete) {
+    try {
+      await useMain.deleteSubjectById(item_id, semester_id, department_id);
+      selectedRecord.value.subjects.filter((s: any) => s.subject_id !== item_id)
+    } catch (error) {
+      console.log(error);
+    }
+  }
+};
 const closeForm = () => {
-  selectedSemester.value = null;
+  selectedRecord.value = null;
   formData.value = {
-    name: '',
-    year: 0,
-    semester_number: 0
+    semester_id: 0,
+    department_id: 0,
+    subjects: []
   };
+  useMain.departmentSTR = ''
+  useMain.semesterSTR = ''
+  useMain.subjectItems = []
   showCreateForm.value = false;
   showUpdateForm.value = false;
 };
+const translateSemesterNumber = (number: number) => {
+  const translations = ["اول", "دوم", "سوم", "چهارم", "پنجم", "ششم", "هفتم", "هشتم"];
 
+  if (number >= 1 && number <= 8) {
+    return translations[number - 1];
+  } else {
+    return "نامعلوم";
+  }
+}
+const selectDepartement = (department: Department) => {
+  useMain.departmentSTR = department.name
+  formData.value.department_id = department.department_id;
+}
+const selectSemester = (semester: Semester) => {
+  useMain.semesterSTR = semester.semester_number + " " + semester.name + " " + semester.year;
+  formData.value.semester_id = semester.semester_id;
+}
 onMounted(async () => {
+  await useMain.getAllSubjects();
   await useMain.getAllSemesters();
 });
 </script>
-
-
 <template>
   <div>
     <div v-if="showCreateForm || showUpdateForm" class="dark-container" @click="closeForm"></div>
-    <div v-if="showCreateForm || showUpdateForm" class="semester-form-overlay">
-      <div class="semester-form">
-        <h2 v-if="showCreateForm">ایجاد ترم جدید</h2>
-        <h2 v-if="showUpdateForm">ویرایش ترم</h2>
-        <form @submit.prevent="handleSubmit">
-          <div class="input-group">
-            <label for="type">نوع ترم:</label>
-            <select v-model="formData.name" id="type" required>
-              <option value="" disabled selected>انتخاب نوع ترم</option>
-              <option v-for="season in seasons" :key="season" :value="season">{{ season }}</option>
-            </select>
-          </div>
-
-          <div class="selects-group">
-            <div class="input-group">
-              <label for="year">سال:</label>
-              <select v-model="formData.year" id="year" class="custom-select">
-                <option value="" disabled selected>انتخاب سال</option>
-                <option v-for="i in 50" :key="1370 + i" :value="1370 + 50 - i">{{ 1370 + 50 - i }}</option>
-              </select>
-
+    <TransitionGroup name="bounce">
+      <div v-if="showCreateForm || showUpdateForm" class="semester-form-overlay">
+        <div class="semester-form">
+          <h2 v-if="showCreateForm">افزدون مضامین</h2>
+          <h2 v-if="showUpdateForm"> ویرایش مضامین</h2>
+          <form v-if="showCreateForm">
+            <div class="input-groups">
+              <div class="input-group">
+                <label for="dep">دیپارتمنت:</label>
+                <div class="select-o">
+                  <input id="dep" type="text" v-model="useMain.departmentSTR" @focus="departmentDrop = true"
+                    @blur="departmentDrop = false" placeholder="دیپارتمنت مربوطه را انتخاب کنید" required
+                    autocomplete="false">
+                  <TransitionGroup name="list" appear>
+                    <ul class="select-ul" v-if="departmentDrop">
+                      <li v-for="department in useMain.departmentData" :key="department.department_id"
+                        @click.stop="selectDepartement(department)">
+                        <span>{{ department.name }}</span>
+                      </li>
+                    </ul>
+                  </TransitionGroup>
+                </div>
+              </div>
+              <div class="input-group">
+                <label for="semester">سمستر:</label>
+                <div class="select-o">
+                  <input id="semester" type="text" v-model="useMain.semesterSTR" @focus="semesterDrop = true"
+                    @blur="semesterDrop = false" placeholder="سمستر مربوطه را انتخاب کنید" required autocomplete="false">
+                  <TransitionGroup name="list" appear>
+                    <ul class="select-ul" v-if="semesterDrop">
+                      <li v-for="semester in useMain.semesterData" :key="semester.semester_id"
+                        @click.stop="selectSemester(semester)">
+                        <span>{{ translateSemesterNumber(semester.semester_number) }}</span>
+                        <span>{{ semester.name }}</span>
+                        <span>{{ semester.year }}</span>
+                      </li>
+                    </ul>
+                  </TransitionGroup>
+                </div>
+              </div>
             </div>
+
             <div class="input-group">
-              <label for="number">شماره ترم:</label>
-              <select v-model="formData.semester_number" id="number" required>
-                <option v-for="i in 8" :key="i" :value="i">{{ i }}</option>
-              </select>
+              <label for="subject">مضامین:</label>
+              <div>
+                <subjectItems />
+              </div>
             </div>
+
+            <div class="button-group">
+              <button type="button" @click="handleSubmit()">ذخیره</button>
+              <button @click="closeForm" type="button">لغو</button>
+            </div>
+          </form>
+          <div v-else class="update-container">
+            <ul class="semester-details-list">
+              <li>
+                <p>سمستر</p>
+                <p>{{ translateSemesterNumber(selectedRecord.semester_number) }}</p>
+              </li>
+              <li>
+                <p>نوع</p>
+                <p>{{ selectedRecord.semester_name }}</p>
+              </li>
+              <li>
+                <p>سال</p>
+                <p>{{ selectedRecord.year }} -ه ش</p>
+              </li>
+              <li>
+                <p>دیپارتمنت</p>
+                <p>{{ useMain.departments.find(dep => dep.department_id ===
+                  selectedRecord.department_id)?.name }}</p>
+              </li>
+            </ul>
+            <span id="add-btn">
+              <button @click="handleCreateSubject()">
+                <Icon>
+                  <Add />
+                </Icon>
+              </button>
+            </span>
+            <form class="subject-from" v-if="showSubjectCreateForm || showSubjectUpdateForm">
+              <!-- <h3 v-if="showSubjectCreateForm">افزدون مضمون</h3>
+              <h3 v-if="showSubjectUpdateForm">ویرایش مضمون</h3> -->
+              <BaseInput v-model="sbjFormData.name" input-type="text" input-id="نام:" :is-required="true"
+                placeholder="نام را وارد کنید" />
+              <BaseInput v-model="sbjFormData.credit" input-type="number" input-id="کردیت:" :is-required="true"
+                placeholder="کردیت را وارد کنید" />
+
+              <div class="buttons">
+                <button type="button" @click="createSingleSubject(selectedRecord.department_id,selectedRecord.semester_id)">{{ showSubjectCreateForm ? 'ذخیره' : 'ویرایش' }}</button>
+                <button @click="showSubjectCreateForm = false, showSubjectUpdateForm = false" type="button">لغو</button>
+              </div>
+            </form>
+            <ul class="edit-subject-ul" v-else>
+              <transition-group name="specList">
+                <li v-for="item in selectedRecord.subjects" :key="item">
+                  <span>{{ item.subject_name }}</span>
+                  <span>{{ item.credit }}</span>
+                  <span class="edit" @click="handleSubjectUpdate(item,selectedRecord.department_id,selectedRecord.semester_id)">
+                    <Icon color="green">
+                      <PencilOutline />
+                    </Icon>
+                  </span>
+                  <span class="trash"
+                    @click="deleteSingleSubject(item.subject_id, selectedRecord.semester_id, selectedRecord.department_id)">
+                    <Icon color="red">
+                      <Delete24Regular />
+                    </Icon>
+                  </span>
+                </li>
+              </transition-group>
+            </ul>
           </div>
-          <div class="button-group">
-            <button type="submit">{{ showCreateForm ? 'ذخیره' : 'ویرایش' }}</button>
-            <button @click="closeForm" type="button">لغو</button>
-          </div>
-        </form>
+        </div>
       </div>
-    </div>
+    </TransitionGroup>
     <div class="semesters-list">
       <div class="header">
         <span id="num">
           شماره
         </span>
         <span id="name">
-          نوع ترم
+          سمستر
         </span>
-        <span id="year">
-          سال
-        </span>
-        <span id="semester-number">
-          شماره ترم
+        <span id="subjects">
+          مضامین
         </span>
         <span id="add-sem-buttons">
           <button @click="showCreateForm = true">
@@ -141,19 +299,33 @@ onMounted(async () => {
         </span>
       </div>
       <ul>
-        <li v-for="(semester, index) in useMain.semesters" :key="semester.semester_id" class="item">
+        <li v-for="(subject, index) in useMain.subjectsPageRecord" :key="index" class="item">
           <div class="list-item-content">
             <span class="number">{{ index + 1 }}</span>
-            <p class="semester-name">{{ semester.name }}</p>
-            <p class="semester-year">{{ semester.year }}</p>
-            <p class="semester-number">{{ semester.semester_number }}</p>
+            <div class="semester-details">
+              <p class="semester-number"> سمستر : {{ translateSemesterNumber(subject.semester_number) }}</p>
+              <p class="semester-number">نوع : {{ subject.semester_name }}</p>
+              <p class="semester-number">سال: {{ subject.year }} -ه ش</p>
+              <p class="semester-name">دیپارتمنت : {{ useMain.departments.find(dep => dep.department_id ===
+                subject.department_id)?.name }}</p>
+            </div>
+            <ul class="subject-list">
+              <li>
+                <p class="subject-name">مضمون</p>
+                <p class="subject-credit">کردیت</p>
+              </li>
+              <li v-for="(item, Index) in subject.subjects" :key="Index">
+                <p class="subject-name">{{ item.subject_name }}</p>
+                <p class="subject-credit">{{ item.credit }}</p>
+              </li>
+            </ul>
             <div class="edit-sem-buttons">
-              <button @click="handleUpdate(semester)">
+              <button @click="handleRecordUpdate(subject)">
                 <Icon size="20" color="green">
                   <PencilOutline />
                 </Icon>
               </button>
-              <button @click="handleDelete(semester.semester_id)">
+              <button @click="handleDelete(subject.semester_id, subject.department_id)">
                 <Icon size="20" color="red">
                   <Delete24Regular />
                 </Icon>
@@ -169,6 +341,12 @@ onMounted(async () => {
 <style scoped lang="scss">
 @import "@/assets/variables.scss";
 @import "@/assets/mixin.scss";
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
 
 .semesters-list {
   width: 100%;
@@ -190,149 +368,166 @@ onMounted(async () => {
   &:hover {
     @include scrollbar();
   }
-}
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: .8rem;
-  box-shadow: 0 4px 2px -2px rgba(31, 38, 135, 0.17);
-  background-color: #FAFBFF;
-  // position: sticky;
-  // top: 3rem;
-  font-size: 1.1rem;
-  z-index: 1;
-  border-radius: 5px;
-
-  #num {
-    width: 15%;
-    padding: 0 1rem;
-  }
-
-  #name {
-    width: 20%;
-
-  }
-
-  #year {
-    width: 25%;
-    padding: 0 1rem;
-
-  }
-
-
-  #semester-number {
-    width: 25%;
-
-  }
-
-  #add-sem-buttons {
+  .header {
     display: flex;
+    align-items: center;
     justify-content: center;
-    width: 15%;
+    padding: .8rem;
+    box-shadow: 0 4px 2px -2px rgba(31, 38, 135, 0.17);
+    background-color: #FAFBFF;
+    font-size: 1.1rem;
+    z-index: 1;
+    border-radius: 5px;
 
-    button {
-      background-color: #fff;
-      border-radius: 5px;
-      font-size: 25px;
-      width: 30px;
-      height: 100%;
-      border: 1px solid $dOp-1;
+    #num {
+      width: 10%;
+      padding: 0 1rem;
+
+    }
+
+    #name {
+      width: 15%;
+
+    }
+
+    #subjects {
+      width: 65%;
+
+    }
+
+
+
+    #add-sem-buttons {
       display: flex;
       justify-content: center;
-      align-items: center;
-      color: $dOp-2;
-      margin: 0 auto;
-      cursor: pointer;
+      width: 10%;
 
-      &:hover {
-        color: #159347;
+      button {
+        background-color: #fff;
+        border-radius: 5px;
+        font-size: 25px;
+        width: 30px;
+        height: 100%;
+        border: 1px solid $dOp-1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: $dOp-2;
+        margin: 0 auto;
+        cursor: pointer;
+
+        &:hover {
+          color: #159347;
+        }
       }
     }
   }
-}
 
-ul {
-  list-style: none;
-  padding: .5rem 0 0 0;
-  width: 100%;
-  @include hideScrollbar();
+  ul {
+    list-style: none;
+    padding: .5rem 0 0 0;
+    width: 100%;
+    @include hideScrollbar();
 
-  &:hover {
-    @include scrollbar();
-  }
+    &:hover {
+      @include scrollbar();
+    }
 
-  overflow-y: auto;
+    overflow-y: auto;
 
 
-  .item {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    padding: .8rem;
-    background: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 2px 2px 0 rgba(31, 38, 135, 0.17), 0 -2px 2px 0 rgba(116, 119, 156, 0.085);
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    border-radius: 10px;
-
-    .list-item-content {
+    .item {
+      position: relative;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      width: 100%;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      padding: .8rem;
+      background: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 2px 2px 0 rgba(31, 38, 135, 0.17), 0 -2px 2px 0 rgba(116, 119, 156, 0.085);
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      border-radius: 10px;
 
-      .number {
-        width: 15%;
-        padding: 0 1rem;
-      }
-
-      .semester-name {
-        width: 20%;
-        padding: 0 .5rem;
-
-      }
-
-      .semester-year {
-        width: 25%;
-        padding: 0 .5rem;
-
-      }
-
-      .semester-number {
-        width: 25%;
-        padding: 0 .5rem;
-
-      }
-
-
-
-      .edit-sem-buttons {
-        flex: 1;
-        width: 15%;
+      .list-item-content {
         display: flex;
-        justify-content: end;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
 
-        button {
-          background-color: transparent;
-          border: none;
-          margin-left: 1rem;
-          cursor: pointer;
+        .number {
+          width: 10%;
+          padding: 0 1rem;
+
         }
 
+        .semester-details {
+          width: 15%;
+          padding: 0 .5rem;
+          height: 100%;
+
+          // font-size: 16px;
+          p {
+            width: 100%;
+            text-align: right;
+            padding: 0;
+          }
+        }
+
+        .subject-list {
+          display: flex;
+          flex-wrap: wrap;
+          width: 65%;
+          padding: 0;
+          margin: 0;
+
+          li {
+            // font-size: 16px;
+            text-align: center;
+            width: 5rem;
+
+            &:first-child {
+              border-left: 1px solid lighten($color-border, 5%);
+              text-align: center;
+              margin-left: 1rem;
+            }
+          }
+        }
+
+
+
+
+
+        .edit-sem-buttons {
+          width: 10%;
+          display: flex;
+          justify-content: center;
+
+          button {
+            background-color: transparent;
+            border: none;
+            // margin-left: 1rem;
+            cursor: pointer;
+          }
+
+        }
       }
     }
   }
+
 }
 
 .semester-form-overlay {
   position: absolute;
-  top: 10%;
-  right: 35%;
-  left: 35%;
+  height: 30rem;
+  max-height: 30rem;
+  width: 35rem;
+  min-width: 35rem;
+
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   padding: 1rem;
   background: rgba(255, 255, 255, 0.975);
   box-shadow: 0 10px 10px 0 rgba(31, 38, 135, 0.17),
@@ -342,18 +537,34 @@ ul {
   border-radius: 10px;
   z-index: 800;
 
+
   .semester-form {
     h2 {
       text-align: center;
     }
 
     form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
       .selects-group {
         display: flex;
-        width: 90%;
+        width: 100%;
         margin: 0 auto;
         gap: 1rem;
       }
+
+      .input-groups {
+        display: flex;
+        gap: 1rem;
+        padding: 0 1rem;
+        margin-bottom: 1rem;
+        width: 95%;
+      }
+
+
 
       .input-group {
         display: flex;
@@ -361,35 +572,81 @@ ul {
         width: 90%;
         margin: 0 auto;
 
-        select {
+        input {
           width: 100%;
           padding: 0.9em 1em;
-          border: 1px solid lighten($color-border, 5%);
           border-radius: 6px;
           font-size: 1em;
-          margin-bottom: 1rem;
           text-align: right;
+          border: none;
+          outline: none;
+          border: 1px solid lighten($color-border, 5%);
+
+          &:focus {
+            border-bottom: $primary 1px solid;
+          }
+        }
+
+        .select-o {
+          position: relative;
+
+          .select-ul {
+            position: absolute;
+            width: 100%;
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            max-height: 6em;
+            overflow-y: scroll;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            @include scrollbar();
+
+            li {
+              height: 2em;
+              width: 100%;
+              display: flex;
+              justify-content: space-evenly;
+              cursor: pointer;
+
+              &:hover {
+                background: rgba(255, 255, 255, 1);
+              }
+
+              span {
+                height: 100%;
+              }
+            }
+          }
         }
       }
 
       .button-group {
         width: 80%;
-        margin: 0 auto;
         display: flex;
         justify-content: space-evenly;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 1rem;
 
         button {
           border: none;
           border-radius: 5px;
           height: 2.5rem;
           font-size: 1.1rem;
-          // width: 2.5rem;
+          color: white;
           width: 30%;
-          color: $gray-1;
           cursor: pointer;
 
           &:first-child {
-            background-color: $green;
+            background-color: $primary;
           }
 
           &:last-child {
@@ -401,33 +658,6 @@ ul {
   }
 }
 
-
-select {
-  padding: 8px 20px 8px 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-color: white;
-  background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%);
-  background-position: calc(15px) center, calc(20px) center;
-  background-size: 5px 5px, 5px 5px;
-  background-repeat: no-repeat;
-}
-
-.custom-select option {
-  background-color: #fff;
-  color: #333;
-  padding: 8px;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.custom-select option:hover {
-  background-color: #f0f0f0;
-}
-
 .dark-container {
   background-color: #0000003f;
   width: 100%;
@@ -436,6 +666,244 @@ select {
   top: 0;
   right: 0;
   z-index: 500;
+}
+
+.list-enter-from {
+  transform: scaleY(0);
+}
+
+.list-enter-to {
+  transform: scaleY(1);
+}
+
+.list-enter-active {
+  transition: all 0.2s ease;
+  transform-origin: top;
+}
+
+.list-leave-from {
+  transform: scaleY(1)
+}
+
+.list-leave-to {
+  transform: scaleY(0);
+}
+
+.list-leave-active {
+  transition: all .3s ease;
+  transform-origin: top;
+}
+
+.list-move {
+  transition: all 0.3s ease;
+}
+
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+
+.bounce-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.03);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+
+///////////// update subject //////////////////
+.update-container {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+
+  // justify-content: center;
+  // align-content: center;
+  .semester-details-list {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+
+    li {
+      width: 7rem;
+      border-left: 1px solid lighten($color-border, 5%);
+      text-align: center;
+      margin-left: 1rem;
+
+      &:last-child {
+        border: none;
+      }
+    }
+  }
+
+  #add-btn {
+    margin-top: 1rem;
+
+    button {
+      background-color: #fff;
+      border-radius: 5px;
+      font-size: 25px;
+      width: 30px;
+      height: 100%;
+      border: 1px solid $primary;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: $primary;
+      margin: 0 auto;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $primary;
+        color: white;
+      }
+    }
+  }
+
+  .subject-from {
+    padding: 2rem;
+    width: 70%;
+    margin: 0 auto;
+    .buttons {
+      width: 60%;
+      display: flex;
+      justify-content: space-evenly;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 1rem;
+
+      button {
+        border: none;
+        border-radius: 5px;
+        height: 2.5rem;
+        font-size: 1.1rem;
+        color: white;
+        width: 30%;
+        cursor: pointer;
+
+        &:first-child {
+          background-color: $primary;
+        }
+
+        &:last-child {
+          background-color: $red;
+        }
+      }
+    }
+  }
+
+  .edit-subject-ul {
+    overflow-y: scroll;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    border-radius: 5px;
+    min-height: 15rem;
+    max-height: 15rem;
+    margin: 1em 0;
+    position: relative;
+    list-style-type: none;
+    padding: 0;
+
+    @include hideScrollbar();
+
+    &:hover {
+      @include scrollbar();
+    }
+
+    li {
+      width: 90%;
+      display: flex;
+      align-items: center;
+      padding: 0.3em;
+      margin: 0.3em;
+      border-radius: 5px;
+      height: 2.5rem;
+      background: transparent;
+      transition: 0.3s ease all;
+      box-shadow: 0 2px 3px 0 rgba(136, 137, 138, 0.37),
+        0 -1px 3px 0 rgba(160, 160, 160, 0.085);
+      // border-bottom: #cccccc 1px solid;
+      position: relative;
+      color: rgba(0, 0, 0, 0.7);
+
+      span {
+        width: 50%;
+        padding-right: 0.3em;
+      }
+
+      .trash,
+      .edit {
+        position: absolute;
+        width: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .trash {
+        left: 1em;
+      }
+
+      .edit {
+        left: 4em;
+      }
+
+      &:hover {
+        background: rgba(244, 245, 247)
+      }
+    }
+  }
+
+}
+
+
+.specList-enter-from {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.specList-enter-to {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.specList-enter-active {
+  transition: all 0.5s ease;
+}
+
+.specList-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.specList-leave-to {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.specList-leave-active {
+  transition: all .4s ease;
+  position: absolute;
+}
+
+.specList-move {
+  transition: all 0.3s ease;
 }
 </style>
   

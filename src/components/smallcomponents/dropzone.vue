@@ -6,10 +6,10 @@
                     <Dismiss20Regular />
                 </Icon>
                 <input class="file" id="inputTag" name="file" accept="image/*" type="file" @change="uploadFile" required/>
+                <p v-if="!store.File.length">تصاویر را بکشید و رها کنید، یا برای انتخاب فایل‌ کلیک کنید</p>
             </label>
-            <p v-if="!useAuth.File.length">تصاویر را بکشید و رها کنید، یا برای انتخاب فایل‌ها کلیک کنید</p>
-            <ul v-if="useAuth.File.length">
-                <li v-for="file in useAuth.File" :key="file.name">
+            <ul v-if="store.File.length">
+                <li v-for="file in store.File" :key="file.name">
                     <span @click="remove()">
                         <Icon size="18">
                             <Dismiss20Regular />
@@ -24,22 +24,25 @@
 
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
+import { mainStore } from "@/stores/main";
 import { Icon } from "@vicons/utils";
 import {
     Dismiss20Regular
 } from "@vicons/fluent";
 import { ref } from "vue";
-const useAuth = useAuthStore()
+const props = defineProps({
+    store: String,
+})
+let store = props.store === 'user' ? useAuthStore() : mainStore();
 const uploadFile = (e: any) => {
-    useAuth.File = e.target.files
+    store.File = e.target.files
 }
 
 const dragFile = (e: any) => {
-    useAuth.File = []
-
+    store.File = []
     const files = [...e.dataTransfer.files];
     files.forEach((e) => {
-        useAuth.File.push(e)
+        store.File.push(e)
     })
 }
 
@@ -51,7 +54,7 @@ const generateURL = (file: any) => {
     return fileSrc;
 }
 const remove = () => {
-    useAuth.File = [];
+    store.File = [];
 }
 
 
@@ -66,9 +69,6 @@ const remove = () => {
     border: 1px dashed #cccccc;
     border-radius: 10px;
     transition: 0.3s ease all;
-    // background-color: #0E9F6E;
-
-    // padding: 0.5em;
     position: relative;
     color: #3c4254;
 
@@ -79,7 +79,6 @@ const remove = () => {
         opacity: 0;
         position: absolute;
         top: 0;
-        // background-color: #3c4254;
     }
 
     &:hover {
@@ -99,22 +98,13 @@ const remove = () => {
     }
 
     ul {
-        // background-color: aqua;
-        // width: 50%;
         margin: 0 auto;
         display: flex;
-        // flex-wrap: wrap;
 
         li {
             z-index: 1000;
             position: relative;
             list-style-type: none;
-            
-            // list-style: none;
-            // width: 100%;
-            
-            // background-color: rgb(255, 0, 200);
-
             &:hover {
                 span {
                     opacity: 1;
@@ -132,11 +122,8 @@ const remove = () => {
 
             }
 
-            // background-color: #0E9F6E;
             img {
                 max-height: 6rem;
-                // width: 100%;
-
                 border-radius: 5px;
                 margin: .5em;
             }

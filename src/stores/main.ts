@@ -18,15 +18,46 @@ export const mainStore = defineStore("main", () => {
   //   },
   // });
 
+  const semesterSTR = ref();
+  const departmentSTR = ref();
+
   const sideBar = ref(true);
   const departments = ref<Department[]>([]);
   const semesters = ref<Semester[]>([]);
-  const subjects = ref<Subject[]>([]);
+  const subjectsPageRecord = ref<any[]>([]);
   const students = ref<Student[]>([]);
+  const File = ref<any[]>([]);
+  const subjectItems = ref<any[]>([]);
+
   const errorMessage = ref({
     title: "",
     message: "",
     success: false,
+  });
+
+  const departmentData = computed(() => {
+    if (departmentSTR.value) {
+      const searchLowerCase = departmentSTR.value.toLowerCase();
+      return departments.value.filter((item) => {
+        const nameMatch = item.name?.toLowerCase().includes(searchLowerCase);
+        return nameMatch;
+      });
+    }
+    return departments.value;
+  });
+  const semesterData = computed(() => {
+    if (semesterSTR.value) {
+      const searchLowerCase = semesterSTR.value.toLowerCase();
+      return semesters.value.filter((item) => {
+        const nameMatch = item.name?.toLowerCase().includes(searchLowerCase);
+        const yearMatch = item.year.toString().includes(searchLowerCase);
+        const numberMatch = item.semester_number
+          .toString()
+          .includes(searchLowerCase);
+        return nameMatch || yearMatch || numberMatch;
+      });
+    }
+    return semesters.value;
   });
 
   // function openConfirmDialog(data: { title: string; message: string; onConfirmCallback: string; }) {
@@ -179,7 +210,6 @@ export const mainStore = defineStore("main", () => {
     }
   }
 
-
   ////////////////////////////////////////////////////////////////////////
   ///////////////////////////    Subject     /////////////////////////////
   ////////////////////////////////////////////////////////////////////////
@@ -187,43 +217,123 @@ export const mainStore = defineStore("main", () => {
   // Get all subjects
   async function getAllSubjects() {
     try {
-      subjects.value = await axios.get("/subjects");
+      const res = await axios.get("/subjects");
+      if (res?.status === 200) {
+        subjectsPageRecord.value = res.data.subjects;
+      }
     } catch (error) {
       console.error("Error retrieving subjects:", error);
     }
   }
 
   // Create a new subject
-  async function createSubject(data: Subject) {
+  async function createSubject(data: any) {
+    console.log(data);
     try {
-      await axios.post("/subjects", data);
+      const res = await axios.post("/subjects", data);
+      if (res?.status === 201) {
+        // console.log(res.data);
+        subjectsPageRecord.value.push(res.data.semesterWithSubjects);
+      }
     } catch (error) {
       console.error("Error creating subject:", error);
     }
   }
 
   // Update a subject
-  async function updateSubject(data: Subject) {
+  async function updateSubject(data: any) {
     try {
-      await axios.put(`/subjects/${data.subject_id}`, data);
+      const res =await axios.put(`/subjects/${data.subject_id}`, {name:data.name,credit:data.credit});
+      if (res?.status === 200) {
+        const  subject  = res.data.subject;
+
+        const recordIndex = subjectsPageRecord.value.findIndex((record) =>
+          record.department_id === data.department_id && record.semester_id === data.semester_id
+        );
+        if (recordIndex !== -1) {
+          const subjectIndex = subjectsPageRecord.value[recordIndex].subjects.findIndex((subject: any) =>
+            subject.subject_id === data.subject_id
+          );
+  
+          if (subjectIndex !== -1) {
+            subjectsPageRecord.value[recordIndex].subjects[subjectIndex].subject_name = data.name;
+            subjectsPageRecord.value[recordIndex].subjects[subjectIndex].credit = data.credit;
+          }
+        }
+        return subject;
+      }
     } catch (error) {
       console.error("Error updating subject:", error);
     }
   }
 
-  // Delete a subject
-  async function deleteSubject(subject_id: number) {
+  // Delete a subjects
+  async function deleteSubjectsBySemester(
+    semesterId: number,
+    departmentId: number
+  ) {
     try {
-      await axios.delete(`/subjects/${subject_id}`);
+      const res = await axios.delete(`/subjects/${semesterId}/${departmentId}`);
+      if (res?.status === 200) {
+        subjectsPageRecord.value = subjectsPageRecord.value.filter((s) => {
+          return !(
+            s.semester_id === semesterId && s.department_id === departmentId
+          );
+        });
+      }
     } catch (error) {
       console.error("Error deleting subject:", error);
     }
   }
+  // Delete a subject
+  async function deleteSubjectById(subjectId:number, sem_id:number, dep_id:number) {
+    try {
+      const res = await axios.delete(`/subjects/${subjectId}`);
+      if (res?.status === 200) {
+        const semesterIndex = subjectsPageRecord.value.findIndex(
+          (item) => item.department_id === dep_id && item.semester_id === sem_id
+        );
+        if (semesterIndex !== -1) {
+          subjectsPageRecord.value[semesterIndex].subjects = subjectsPageRecord.value[semesterIndex].subjects.filter(
+            (subject:any) => subject.subject_id !== subjectId
+          );
+        }
+      }
+    } catch (error:any) {
+      setMessage("محصل", error.response.data.error, false);
+      console.error("Error deleting student:", error);
+    }
+  }
+
+  async function addSubjectToRecord(subjectData:any) {
+    try {
+      const res = await axios.post("/subjects/new", subjectData);
+      if (res?.status === 201) {
+        const  subject  = res.data.subject;
+
+        const recordIndex = subjectsPageRecord.value.findIndex((record) =>
+          record.department_id === subjectData.department_id && record.semester_id === subjectData.semester_id
+        );
+        if (recordIndex !== -1) {
+          subjectsPageRecord.value[recordIndex].subjects.push(subject);
+        }
+        return subject;
+      }
+    } catch (error) {
+      console.error("Error adding subject:", error);
+    }
+  }
+  
+
+  ////////////////////////////////////////////////////////////////////////
+  ///////////////////////////    Student     /////////////////////////////
+  ////////////////////////////////////////////////////////////////////////
 
   // Get all students
   async function getAllStudents() {
     try {
-      students.value = await axios.get("/students");
+      let response = await axios.get("/students");
+      students.value = response.data.students;
     } catch (error) {
       console.error("Error retrieving students:", error);
     }
@@ -231,17 +341,70 @@ export const mainStore = defineStore("main", () => {
 
   // Create a new student
   async function createStudent(data: Student) {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("fname", data.fname);
+    formData.append("ssid", data.ssid.toString());
+    formData.append("department_id", data.department_id.toString());
+    const filesToUpload = [...File.value];
+    filesToUpload.forEach((e) => {
+      formData.append("file", e);
+    });
     try {
-      await axios.post("/students", data);
+      const res = await axios.post("/students", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (res?.status === 201) {
+        students.value.push({
+          student_id: res.data.student.student_id,
+          name: res.data.student.name,
+          fname: res.data.student.fname,
+          ssid: res.data.student.ssid,
+          department_id: res.data.student.department_id,
+          picture: res.data.student.picture,
+          current_semester: res.data.student.current_semester,
+        });
+      }
     } catch (error) {
       console.error("Error creating student:", error);
     }
+    File.value = [];
   }
 
   // Update a student
   async function updateStudent(data: Student) {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("fname", data.fname);
+    formData.append("ssid", data.ssid.toString());
+    formData.append("department_id", data.department_id.toString());
+    const filesToUpload = [...File.value];
+    if (filesToUpload.length) {
+      filesToUpload.forEach((e) => {
+        formData.append("file", e);
+      });
+    }
     try {
-      await axios.put(`/students/${data.student_id}`, data);
+      const res = await axios.put(`/students/${data.student_id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (res?.status === 200) {
+        const Index = students.value.findIndex(
+          (student) => student.student_id === data.student_id
+        );
+        if (Index !== -1) {
+          students.value[Index].name = res.data.student.name;
+          students.value[Index].fname = res.data.student.fname;
+          students.value[Index].ssid = res.data.student.ssid;
+          students.value[Index].department_id = res.data.student.department_id;
+          students.value[Index].picture = res.data.student.picture;
+        }
+        setMessage("محصل", res.data.message, true);
+      }
     } catch (error) {
       console.error("Error updating student:", error);
     }
@@ -250,8 +413,16 @@ export const mainStore = defineStore("main", () => {
   // Delete a student
   async function deleteStudent(student_id: number) {
     try {
-      await axios.delete(`/students/${student_id}`);
-    } catch (error) {
+      const res = await axios.delete(`/students/${student_id}`);
+      if (res?.status === 200) {
+        students.value = students.value.filter(
+          (student) => student.student_id !== student_id
+        );
+        setMessage("محصل", res.data.message, true);
+      }
+      console.log(res);
+    } catch (error: any) {
+      setMessage("محصل", error.response.data.error, false);
       console.error("Error deleting student:", error);
     }
   }
@@ -279,19 +450,26 @@ export const mainStore = defineStore("main", () => {
 
     createSubject,
     updateSubject,
-    deleteSubject,
+    deleteSubjectsBySemester,
     getAllStudents,
     createStudent,
     updateStudent,
     deleteStudent,
     setMessage,
+    addSubjectToRecord,
+    deleteSubjectById,
     sideBar,
     departments,
     semesters,
-    subjects,
+    subjectsPageRecord,
     students,
     errorMessage,
-    
+    File,
+    semesterSTR,
+    departmentSTR,
+    semesterData,
+    departmentData,
+    subjectItems,
     // openConfirmDialog,
     // closeConfirmDialog,
     // confirmDialog

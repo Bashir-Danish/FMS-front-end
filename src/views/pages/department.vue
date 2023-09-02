@@ -85,7 +85,7 @@ onMounted(async () => {
             <BaseInput v-model="formData.name" input-type="text" input-id="نام:" :is-required="true"
               placeholder="نام را وارد کنید" />
           </div>
-          <div class="button-grout">
+          <div class="button-group">
             <button type="submit">{{ showCreateForm ? 'ذخیره' : 'ویرایش' }}</button>
             <button @click="closeForm" type="button">لغو</button>
           </div>
@@ -285,12 +285,12 @@ ul {
     }
 
     form {
-      .input-grout {
+      .input-group {
         width: 80%;
         margin: 0 auto;
       }
 
-      .button-grout {
+      .button-group {
         width: 80%;
         margin: 0 auto;
         display: flex;
@@ -305,7 +305,7 @@ ul {
           color: $gray-1;
           cursor: pointer;
           &:first-child {
-            background-color: $green;
+            background-color: $primary;
           }
           &:last-child {
             background-color: $red;

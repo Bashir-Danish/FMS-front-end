@@ -387,10 +387,13 @@ const navigate = (link: string) => router.push(link);
         }
 
         &.active {
+
+          
           color: $primary;
+          
           background: rgba(255, 255, 255, 0.45);
           border-radius: 16px;
-          backdrop-filter: blur(5px);
+          // backdrop-filter: blur(5px);
           -webkit-backdrop-filter: blur(5px);
           border: 1px solid rgba(255, 255, 255, 0.3);
           box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.001),
