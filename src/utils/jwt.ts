@@ -1,21 +1,14 @@
-export const getToken = () => {
-    let token = window.localStorage.getItem('tokenId');
-    if (token == 'undefined') {
-      token = ''
+function isAuthenticated() {
+  let isAuth = false;
+  const cookies = document.cookie.split(";");
+  for (const cookie of cookies) {
+    const [name, value] = cookie.trim().split("=");
+    if (name === "access_token") {
+      isAuth = true;
+      break;
     }
-  
-    return token
-  };
-  export const saveToken = (token: string) => {
-    window.localStorage.setItem('tokenId', token);
-    
-  };
-  export const saveUser = (user :any )=> {
-    window.localStorage.setItem('user', user);
-  };
-  export const destroyToken = () => {
-    window.localStorage.removeItem('tokenId');
-  };
-  
-  export default { getToken, saveToken, destroyToken ,saveUser };
-  
+  }
+  return isAuth;
+}
+
+export default isAuthenticated;

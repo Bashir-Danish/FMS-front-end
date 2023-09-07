@@ -1,22 +1,17 @@
 
 
 import axios from "axios";
-import {getToken} from '@/utils/jwt'
 
-
+axios.defaults.withCredentials = true
 const _axios = axios.create({
   baseURL: "http://localhost:5000/api/v1",
   headers: {
     "Content-Type": "application/json",    
-  },
+    withCredentials: true, credentials: 'include'}
+  ,
 });
 
-const token = getToken();
-if (token) {
-  _axios.defaults.headers.common["Authorization"] = token;
-} else {
-  _axios.defaults.headers.common["Authorization"] = "";
-}
+
 
 // _axios.interceptors.request.use(
 //   (config) => {
@@ -43,6 +38,7 @@ if (token) {
 
 
 _axios.interceptors.request.use(function (config) {
+  config.withCredentials = true;
   return config;
 }, function (error) {
 

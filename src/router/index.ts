@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import AuthView from '@/views/AuthView.vue'
+import notFound from '@/views/notFound.vue'
 import Login from '@/components/auth/login.vue'
 import about from '@/views/pages/about.vue'
 import enrolls from '@/views/pages/enrolls.vue'
@@ -10,6 +11,7 @@ import semester from '@/views/pages/semester.vue'
 import student from '@/views/pages/student.vue'
 import subject from '@/views/pages/subject.vue'
 import users from '@/views/pages/users.vue'
+import isAuthenticated from '@/utils/jwt'
 
 
 const router = createRouter({
@@ -18,6 +20,7 @@ const router = createRouter({
     {
       path: '/',
       component: HomeView,
+      meta :{isAuthenticated :true},
       children:[
         // {
         //   path:'about',
@@ -63,7 +66,22 @@ const router = createRouter({
         }
       ]
     },
+    {
+      path: "/:NotFound(.*)*",
+      component: notFound,
+    },
   ]
 })
-
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.isAuthenticated)) {
+    if (isAuthenticated()) {
+      
+      next()
+    } else {
+      next('/login')
+    }
+  } else {
+    next()
+  }
+})
 export default router

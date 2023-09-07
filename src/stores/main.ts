@@ -174,7 +174,21 @@ export const mainStore = defineStore("main", () => {
       // console.error("Error creating semester:", error.response.data.error);
     }
   }
+  async function processEnrolls(semesters: any) {
+    try {
+      const res = await axios.post("/semesters/enrolls", {
+        semesterIdsToProcess: semesters,
+      });
+      if (res?.status === 200) {
+      setMessage("سمستر", res.data.messages, true);
 
+      }
+    } catch (error: any) {
+      // setMessage("سمستر", error.response.data.error, false);
+      // console.error("Error creating semester:", error.response.data.error);
+    }
+  }
+  
   async function updateSemester(data: Semester) {
     try {
       const res = await axios.put(`/semesters/${data.semester_id}`, data);
@@ -211,9 +225,32 @@ export const mainStore = defineStore("main", () => {
   }
 
   ////////////////////////////////////////////////////////////////////////
-  ///////////////////////////    Subject     /////////////////////////////
+  ///////////////////////////    Enrolls     /////////////////////////////
   ////////////////////////////////////////////////////////////////////////
 
+
+  async function fetchEnrolls(departmentId: number, semesterId: number) {
+    try {
+      const response = await axios.get("/enrolls", {
+        params: {
+          departmentId: departmentId,
+          semesterId: semesterId,
+        },
+      });
+  
+      if (response.status === 200) {
+        const enrolls = response.data; 
+        // console.log(enrolls);
+        return enrolls;
+      }
+    } catch (error:any) {
+      console.error("Error fetching enrolls:", error.message);
+    }
+  }
+
+  ////////////////////////////////////////////////////////////////////////
+  ///////////////////////////    Subject     /////////////////////////////
+  ////////////////////////////////////////////////////////////////////////
   // Get all subjects
   async function getAllSubjects() {
     try {
@@ -243,21 +280,32 @@ export const mainStore = defineStore("main", () => {
   // Update a subject
   async function updateSubject(data: any) {
     try {
-      const res =await axios.put(`/subjects/${data.subject_id}`, {name:data.name,credit:data.credit});
+      const res = await axios.put(`/subjects/${data.subject_id}`, {
+        name: data.name,
+        credit: data.credit,
+      });
       if (res?.status === 200) {
-        const  subject  = res.data.subject;
+        const subject = res.data.subject;
 
-        const recordIndex = subjectsPageRecord.value.findIndex((record) =>
-          record.department_id === data.department_id && record.semester_id === data.semester_id
+        const recordIndex = subjectsPageRecord.value.findIndex(
+          (record) =>
+            record.department_id === data.department_id &&
+            record.semester_id === data.semester_id
         );
         if (recordIndex !== -1) {
-          const subjectIndex = subjectsPageRecord.value[recordIndex].subjects.findIndex((subject: any) =>
-            subject.subject_id === data.subject_id
+          const subjectIndex = subjectsPageRecord.value[
+            recordIndex
+          ].subjects.findIndex(
+            (subject: any) => subject.subject_id === data.subject_id
           );
-  
+
           if (subjectIndex !== -1) {
-            subjectsPageRecord.value[recordIndex].subjects[subjectIndex].subject_name = data.name;
-            subjectsPageRecord.value[recordIndex].subjects[subjectIndex].credit = data.credit;
+            subjectsPageRecord.value[recordIndex].subjects[
+              subjectIndex
+            ].subject_name = data.name;
+            subjectsPageRecord.value[recordIndex].subjects[
+              subjectIndex
+            ].credit = data.credit;
           }
         }
         return subject;
@@ -286,7 +334,11 @@ export const mainStore = defineStore("main", () => {
     }
   }
   // Delete a subject
-  async function deleteSubjectById(subjectId:number, sem_id:number, dep_id:number) {
+  async function deleteSubjectById(
+    subjectId: number,
+    sem_id: number,
+    dep_id: number
+  ) {
     try {
       const res = await axios.delete(`/subjects/${subjectId}`);
       if (res?.status === 200) {
@@ -294,25 +346,28 @@ export const mainStore = defineStore("main", () => {
           (item) => item.department_id === dep_id && item.semester_id === sem_id
         );
         if (semesterIndex !== -1) {
-          subjectsPageRecord.value[semesterIndex].subjects = subjectsPageRecord.value[semesterIndex].subjects.filter(
-            (subject:any) => subject.subject_id !== subjectId
-          );
+          subjectsPageRecord.value[semesterIndex].subjects =
+            subjectsPageRecord.value[semesterIndex].subjects.filter(
+              (subject: any) => subject.subject_id !== subjectId
+            );
         }
       }
-    } catch (error:any) {
+    } catch (error: any) {
       setMessage("محصل", error.response.data.error, false);
       console.error("Error deleting student:", error);
     }
   }
 
-  async function addSubjectToRecord(subjectData:any) {
+  async function addSubjectToRecord(subjectData: any) {
     try {
       const res = await axios.post("/subjects/new", subjectData);
       if (res?.status === 201) {
-        const  subject  = res.data.subject;
+        const subject = res.data.subject;
 
-        const recordIndex = subjectsPageRecord.value.findIndex((record) =>
-          record.department_id === subjectData.department_id && record.semester_id === subjectData.semester_id
+        const recordIndex = subjectsPageRecord.value.findIndex(
+          (record) =>
+            record.department_id === subjectData.department_id &&
+            record.semester_id === subjectData.semester_id
         );
         if (recordIndex !== -1) {
           subjectsPageRecord.value[recordIndex].subjects.push(subject);
@@ -323,7 +378,6 @@ export const mainStore = defineStore("main", () => {
       console.error("Error adding subject:", error);
     }
   }
-  
 
   ////////////////////////////////////////////////////////////////////////
   ///////////////////////////    Student     /////////////////////////////
@@ -346,6 +400,7 @@ export const mainStore = defineStore("main", () => {
     formData.append("fname", data.fname);
     formData.append("ssid", data.ssid.toString());
     formData.append("department_id", data.department_id.toString());
+    formData.append("current_semester", data.current_semester.toString());
     const filesToUpload = [...File.value];
     filesToUpload.forEach((e) => {
       formData.append("file", e);
@@ -380,6 +435,7 @@ export const mainStore = defineStore("main", () => {
     formData.append("fname", data.fname);
     formData.append("ssid", data.ssid.toString());
     formData.append("department_id", data.department_id.toString());
+    formData.append("current_semester", data.current_semester.toString());
     const filesToUpload = [...File.value];
     if (filesToUpload.length) {
       filesToUpload.forEach((e) => {
@@ -402,6 +458,8 @@ export const mainStore = defineStore("main", () => {
           students.value[Index].ssid = res.data.student.ssid;
           students.value[Index].department_id = res.data.student.department_id;
           students.value[Index].picture = res.data.student.picture;
+          students.value[Index].current_semester =
+            res.data.student.current_semester;
         }
         setMessage("محصل", res.data.message, true);
       }
@@ -458,6 +516,8 @@ export const mainStore = defineStore("main", () => {
     setMessage,
     addSubjectToRecord,
     deleteSubjectById,
+    processEnrolls,
+    fetchEnrolls,
     sideBar,
     departments,
     semesters,

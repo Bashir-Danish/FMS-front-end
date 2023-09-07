@@ -49,13 +49,13 @@ const useMain = mainStore();
   position: relative;
   width: 100vw;
   height: 100vh;
+  min-height: 100vh;
   overflow: hidden;
   background: linear-gradient(to bottom, #fafbff, #e6f2ff5b);
   position: relative;
   font-family: 'Lexend';
   color: $dOp-7;
 
-  // overflow-y: scroll;
   &::before {
     content: "";
     position: fixed;
@@ -82,8 +82,6 @@ const useMain = mainStore();
     filter: blur(70px);
     z-index: -1;
   }
-
-
 }
 .bounce-enter-active {
   animation: bounce-in 0.5s;

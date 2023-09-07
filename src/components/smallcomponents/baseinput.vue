@@ -60,7 +60,7 @@ function validate() {
     }
 
     if (!props.modelValue) {
-        mColor.value = true;
+        mColor.value = false;
     }
 }
 
@@ -101,23 +101,24 @@ onMounted(() => {
         outline: none;
         border: 1px solid lighten($color-border, 5%);
         border-radius: 6px;
-        font-size: 1em;
+        font-size: 1.1em;
         // margin-bottom: 0.7em;
         text-align: right;
         &:hover,&:focus{
             border-bottom: $primary 1px solid;
-        }
 
+        }
     }
 
     z-index: 100;
+    .message {
+        position: absolute;
+        display: flex;
+        top: 0;
+        left: .5em;
+        font-size: .8em;
+        opacity: 0;
+    }
 }
 
-.message {
-    position: absolute;
-    display: flex;
-    top: 0;
-    left: .5em;
-    font-size: .8em;
-}
 </style>

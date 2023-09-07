@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { mainStore } from '@/stores/main';
 import { type Semester } from '@/types/model';
 import { Icon } from "@vicons/utils";
-import { Delete24Regular } from "@vicons/fluent";
+import { Delete24Regular, ArrowCollapseAll20Regular, ArrowAutofitHeightDotted20Filled } from "@vicons/fluent";
 import BaseInput from "@/components/smallcomponents/baseinput.vue";
 import {
   Add,
@@ -18,8 +18,12 @@ const formData = ref({
 });
 const showCreateForm = ref(false);
 const showUpdateForm = ref(false);
+const semSaveChange = ref(false);
+
 const selectedSemester = ref<Semester | null>(null);
+const semesterToChange = ref<Semester[]>([])
 const seasons = ['بهاری', 'تابستانی', 'خزانی', 'زمستانی'];
+
 
 const handleUpdate = (semester: Semester) => {
   selectedSemester.value = semester;
@@ -71,8 +75,36 @@ const closeForm = () => {
   };
   showCreateForm.value = false;
   showUpdateForm.value = false;
+  semSaveChange.value = false;
+  semesterToChange.value = [] ;
 };
+const translateSemesterNumber = (number: number) => {
+  const translations = ["اول", "دوم", "سوم", "چهارم", "پنجم", "ششم", "هفتم", "هشتم"];
 
+  if (number >= 1 && number <= 8) {
+    return translations[number - 1];
+  } else {
+    return "نامعلوم";
+  }
+}
+const filterSavedSemester = (semester_id: number) => {
+  semesterToChange.value = semesterToChange.value.filter(s => s.semester_id != semester_id)
+}
+const addToSavedSemester = (semester: Semester) => {
+  const existingSemester = semesterToChange.value.find(s => s.semester_id === semester.semester_id);
+  if (!existingSemester) {
+    semesterToChange.value.push(semester);
+  }
+}
+const sendSemesterToUpdate =async ()=> {
+  let data = <any>[]
+  semesterToChange.value.forEach(element => {
+    data.push(element.semester_id);
+  });
+  
+  await useMain.processEnrolls(data)
+  closeForm()
+}
 onMounted(async () => {
   await useMain.getAllSemesters();
 });
@@ -81,43 +113,96 @@ onMounted(async () => {
 
 <template>
   <div>
-    <div v-if="showCreateForm || showUpdateForm" class="dark-container" @click="closeForm"></div>
-    <div v-if="showCreateForm || showUpdateForm" class="semester-form-overlay">
-      <div class="semester-form">
-        <h2 v-if="showCreateForm">ایجاد ترم جدید</h2>
-        <h2 v-if="showUpdateForm">ویرایش ترم</h2>
-        <form @submit.prevent="handleSubmit">
-          <div class="input-group">
-            <label for="type">نوع ترم:</label>
-            <select v-model="formData.name" id="type" required>
-              <option value="" disabled selected>انتخاب نوع ترم</option>
-              <option v-for="season in seasons" :key="season" :value="season">{{ season }}</option>
-            </select>
-          </div>
-
-          <div class="selects-group">
+    <div v-if="showCreateForm || showUpdateForm || semSaveChange" class="dark-container" @click="closeForm"></div>
+    <TransitionGroup name="bounce">
+      <div v-if="showCreateForm || showUpdateForm" class="semester-form-overlay">
+        <div class="semester-form">
+          <h2 v-if="showCreateForm">ایجاد ترم جدید</h2>
+          <h2 v-if="showUpdateForm">ویرایش ترم</h2>
+          <form @submit.prevent="handleSubmit">
             <div class="input-group">
-              <label for="year">سال:</label>
-              <select v-model="formData.year" id="year" class="custom-select">
-                <option value="" disabled selected>انتخاب سال</option>
-                <option v-for="i in 50" :key="1370 + i" :value="1370 + 50 - i">{{ 1370 + 50 - i }}</option>
-              </select>
-
-            </div>
-            <div class="input-group">
-              <label for="number">شماره ترم:</label>
-              <select v-model="formData.semester_number" id="number" required>
-                <option v-for="i in 8" :key="i" :value="i">{{ i }}</option>
+              <label for="type">نوع ترم:</label>
+              <select v-model="formData.name" id="type" required>
+                <option value="" disabled selected>انتخاب نوع ترم</option>
+                <option v-for="season in seasons" :key="season" :value="season">{{ season }}</option>
               </select>
             </div>
-          </div>
-          <div class="button-group">
-            <button type="submit">{{ showCreateForm ? 'ذخیره' : 'ویرایش' }}</button>
-            <button @click="closeForm" type="button">لغو</button>
-          </div>
-        </form>
+
+            <div class="selects-group">
+              <div class="input-group">
+                <label for="year">سال:</label>
+                <select v-model="formData.year" id="year" class="custom-select">
+                  <option value="" disabled selected>انتخاب سال</option>
+                  <option v-for="i in 50" :key="1370 + i" :value="1370 + 50 - i">{{ 1370 + 50 - i }}</option>
+                </select>
+
+              </div>
+              <div class="input-group">
+                <label for="number">شماره ترم:</label>
+                <select v-model="formData.semester_number" id="number" required>
+                  <option v-for="i in 8" :key="i" :value="i">{{ i }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="button-group">
+              <button type="submit">{{ showCreateForm ? 'ذخیره' : 'ویرایش' }}</button>
+              <button @click="closeForm" type="button">لغو</button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </TransitionGroup>
+    <TransitionGroup name="bounce">
+      <div v-if="semSaveChange" class="save-semester-overlay">
+        <div class="semester-form">
+          <h3>سمستر های که میخواهید تغیرات روی آنها اعمال شود را انتخاب کنید</h3>
+          <form @submit.prevent="handleSubmit">
+            <ul class="edit-semester-ul">
+              <input type="text" class="search-semester" placeholder="جستجو...." v-model="useMain.semesterSTR">
+              <transition-group name="listTransition">
+                <li v-for="(semester, index) in useMain.semesterData" :key="index" >
+                  <span>{{ translateSemesterNumber(semester.semester_number) }}</span>
+                  <span>{{ semester.name }}</span>
+                  <span>{{ semester.year }}</span>
+                  <span class="add" @click="addToSavedSemester(semester)">
+                    <Icon>
+                      <Add />
+                    </Icon>
+                  </span>
+                </li>
+              </transition-group>
+            </ul>
+            <span class="divider">
+              <Icon>
+                <ArrowAutofitHeightDotted20Filled />
+              </Icon>
+            </span>
+            <ul class="edit-semester-ul">
+              <transition-group name="listTransition" v-if="semesterToChange.length">
+                <li v-for="(semester, index) in semesterToChange" :key="index">
+                  <span>{{ translateSemesterNumber(semester.semester_number) }}</span>
+                  <span>{{ semester.name }}</span>
+                  <span>{{ semester.year }}</span>
+                  <span class="trash" @click="filterSavedSemester(semester.semester_id)">
+                    <Icon>
+                      <Delete24Regular />
+                    </Icon>
+                  </span>
+                </li>
+              </transition-group>
+              <span class="empty-text" v-else>
+                خالی
+              </span>
+            </ul>
+            <div class="button-group">
+              <button type="submit" @click="sendSemesterToUpdate()">تغیرات اعمال شود</button>
+              <button @click="closeForm" type="button">لغو</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </TransitionGroup>
+
     <div class="semesters-list">
       <div class="header">
         <span id="num">
@@ -133,6 +218,11 @@ onMounted(async () => {
           شماره ترم
         </span>
         <span id="add-sem-buttons">
+          <button @click="semSaveChange = true">
+            <Icon>
+              <ArrowCollapseAll20Regular />
+            </Icon>
+          </button>
           <button @click="showCreateForm = true">
             <Icon>
               <Add />
@@ -247,7 +337,7 @@ onMounted(async () => {
       cursor: pointer;
 
       &:hover {
-        color: #159347;
+        color: $primary;
       }
     }
   }
@@ -330,9 +420,13 @@ ul {
 
 .semester-form-overlay {
   position: absolute;
-  top: 10%;
-  right: 35%;
-  left: 35%;
+  height: 20rem;
+  max-height: 20rem;
+  width: 20rem;
+  min-width: 25rem;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   padding: 1rem;
   background: rgba(255, 255, 255, 0.975);
   box-shadow: 0 10px 10px 0 rgba(31, 38, 135, 0.17),
@@ -401,6 +495,197 @@ ul {
   }
 }
 
+.save-semester-overlay {
+  position: absolute;
+  height: 38rem;
+  width: 40rem;
+  min-width: 35rem;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.975);
+  box-shadow: 0 10px 10px 0 rgba(31, 38, 135, 0.17),
+    0 -2px 15px 0 rgba(116, 119, 156, 0.085);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  border-radius: 10px;
+  z-index: 800;
+
+  .semester-form {
+    h3 {
+      text-align: center;
+    }
+
+    form {
+      margin: 0 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        width: 90%;
+        margin: 0 auto;
+      }
+
+      .edit-semester-ul {
+        overflow-y: scroll;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        width: 100%;
+        border-radius: 5px;
+        min-height: 13rem;
+        max-height: 13rem;
+        // margin: 1em 0;
+        // padding: 1em 0;
+        position: relative;
+        list-style-type: none;
+        border: 1px dashed #ccc;
+        padding: 1em 0;
+
+        &:first-child {
+          margin: 1em 0;
+          padding: 0;
+
+        }
+
+        .search-semester {
+          width: 100%;
+          background-color: white;
+          z-index: 100;
+          position: sticky;
+          top: 0;
+          padding: 0.6em;
+          border: none;
+          outline: none;
+          border-bottom: 1px solid lighten($color-border, 5%);
+          font-size: 1.1em;
+          text-align: right;
+          text-align: center;
+
+
+          &:focus {
+            border-bottom: $primary 1px solid;
+
+          }
+        }
+
+        // background-color: #b6b0b0;
+
+        @include hideScrollbar();
+
+        &:hover {
+          @include scrollbar();
+        }
+
+        li {
+          width: 90%;
+          display: flex;
+          align-items: center;
+          padding: 0.3em;
+          margin: 0.3em;
+          border-radius: 5px;
+          min-height: 2.2rem;
+          background: transparent;
+          transition: 0.3s ease all;
+          box-shadow: 0 2px 3px 0 rgba(136, 137, 138, 0.37),
+            0 -1px 3px 0 rgba(160, 160, 160, 0.085);
+          // border-bottom: #cccccc 1px solid;
+          position: relative;
+          color: rgba(0, 0, 0, 0.7);
+
+          span {
+            width: 20%;
+            padding-right: 1em;
+
+            &:last-child {
+              width: 40%;
+            }
+          }
+
+
+          .add,
+          .trash {
+            left: 0em;
+            position: absolute;
+            font-size: 22px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: left;
+            cursor: pointer;
+
+            &:hover {
+              color: $primary;
+            }
+          }
+
+          .trash {
+            font-size: 20px;
+
+            &:hover {
+              color: $red;
+            }
+          }
+
+          &:hover {
+            background: rgba(244, 245, 247)
+          }
+        }
+
+        .empty-text {
+          font-size: 20px;
+          margin: auto;
+        }
+
+        &:hover {
+          border: 1px dashed $primary;
+          background: #fff;
+        }
+      }
+
+      .divider {
+        font-size: 25px;
+        height: 2rem;
+        margin: 0;
+        padding: 0;
+      }
+
+      .button-group {
+        width: 80%;
+        // margin: 0 auto;
+        display: flex;
+        justify-content: space-evenly;
+
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 1.5rem;
+
+        button {
+          border: none;
+          border-radius: 5px;
+          height: 2.5rem;
+          font-size: 1.1rem;
+          width: 30%;
+          color: $gray-1;
+          cursor: pointer;
+
+          &:first-child {
+            background-color: $primary;
+          }
+
+          &:last-child {
+            background-color: $red;
+          }
+        }
+      }
+    }
+  }
+}
 
 select {
   padding: 8px 20px 8px 8px;
@@ -439,5 +724,65 @@ select {
   right: 0;
   z-index: 500;
 }
+
+
+
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+
+.bounce-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.03);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+
+.listTransition-enter-from {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.listTransition-enter-to {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.listTransition-enter-active {
+  transition: all 0.5s ease;
+}
+
+.listTransition-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.listTransition-leave-to {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.listTransition-leave-active {
+  transition: all .4s ease;
+  position: absolute;
+}
+
+.listTransition-move {
+  transition: all 0.3s ease;
+}
 </style>
   
+
+

@@ -24,7 +24,7 @@ const formData = ref({
   ssid: 0,
   department_id: 0,
   picture: '',
-  current_semester:0
+  current_semester: 0
 });
 const showCreateForm = ref(false);
 const showUpdateForm = ref(false);
@@ -58,7 +58,7 @@ const handleSubmit = async () => {
         ssid: formData.value.ssid,
         department_id: formData.value.department_id,
         picture: '',
-        current_semester: 0
+        current_semester: formData.value.current_semester
       });
       closeForm();
     } catch (error) {
@@ -68,6 +68,7 @@ const handleSubmit = async () => {
     formData.value.fname = ''
     formData.value.ssid = 0
     formData.value.department_id = 0
+    formData.value.current_semester = 0
   }
 };
 
@@ -91,7 +92,7 @@ const closeForm = () => {
     ssid: 0,
     department_id: 0,
     picture: '',
-    current_semester:0
+    current_semester: 0
   };
   showCreateForm.value = false;
   showUpdateForm.value = false;
@@ -123,10 +124,16 @@ onMounted(async () => {
                   placeholder="نام پدر را وارد کنید" />
               </div>
             </div>
-            <div class="input-groups">
+            <div class="st-input-groups">
               <div class="input-group">
                 <BaseInput v-model="formData.ssid" input-type="number" input-id="آیدی:" :is-required="true"
                   placeholder="آیدی را وارد کنید" />
+              </div>
+              <div class="input-group">
+                <label for="number">شماره ترم:</label>
+                <select v-model="formData.current_semester" id="number" required>
+                  <option v-for="i in 8" :key="i" :value="i">{{ i }}</option>
+                </select>
               </div>
               <div class="input-group">
                 <label for="dep"> دیپارتمنت:</label>
@@ -183,7 +190,8 @@ onMounted(async () => {
             <p class="student-id">{{ student.ssid }}</p>
             <p class="student-name">{{ student.name }}</p>
             <p class="student-fname">{{ student.fname }}</p>
-            <p class="st-department">{{useMain.departments.find(dept => dept.department_id === student.department_id)?.name}}</p>
+            <p class="st-department">{{ useMain.departments.find(dept => dept.department_id ===
+              student.department_id)?.name }}</p>
             <p class="st-semester">{{ student.current_semester }}</p>
             <div class="edit-student-buttons">
               <button @click="handleUpdate(student)">
@@ -258,6 +266,7 @@ onMounted(async () => {
     width: 10%;
     text-align: center;
   }
+
   #student-name {
     width: 15%;
     text-align: center;
@@ -274,6 +283,7 @@ onMounted(async () => {
     text-align: center;
 
   }
+
   #st-semester {
     width: 15%;
     text-align: center;
@@ -342,9 +352,9 @@ ul {
         width: 10%;
         padding: 0 1rem;
         text-align: center;
-        
+
       }
-      
+
       .student-picture {
         width: 10%;
         display: flex;
@@ -361,6 +371,7 @@ ul {
           border-radius: 50%;
         }
       }
+
       .student-id {
         width: 10%;
         padding: 0 .5rem;
@@ -374,7 +385,7 @@ ul {
         text-align: center;
 
       }
-      
+
 
       .student-fname {
         width: 15%;
@@ -388,6 +399,7 @@ ul {
         padding: 0 .5rem;
         text-align: center;
       }
+
       .st-semester {
         width: 15%;
         padding: 0 .5rem;
@@ -442,11 +454,14 @@ ul {
         width: 100%;
       }
 
+
       .selects-group {
         display: flex;
         width: 90%;
         margin: 0 auto;
         gap: 1rem;
+
+
       }
 
       .input-group {
@@ -463,6 +478,18 @@ ul {
           font-size: 1em;
           margin-bottom: 1rem;
           text-align: right;
+        }
+      }
+
+      .st-input-groups {
+        display: flex;
+        gap: 1rem;
+        padding: 0 1rem;
+        width: 100%;
+        .input-group {
+          display: flex;
+          flex-direction: column;
+          margin: 0 auto;
         }
       }
 
@@ -545,23 +572,23 @@ select {
 }
 
 .bounce-leave-active {
-  
+
   animation: bounce-in 0.5s reverse;
-  
+
 
 }
 
 @keyframes bounce-in {
   0% {
-    transform: translate(-50%, -50%)  scale(0);
+    transform: translate(-50%, -50%) scale(0);
   }
 
   50% {
-    transform: translate(-50%, -50%)  scale(1.1);
+    transform: translate(-50%, -50%) scale(1.1);
   }
 
   100% {
-    transform: translate(-50%, -50%)  scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 </style>

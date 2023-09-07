@@ -418,7 +418,7 @@ ul {
         cursor: pointer;
 
         &:hover {
-          color: #159347;
+          color: $primary;
         }
       }
     }
@@ -524,7 +524,6 @@ ul {
   max-height: 30rem;
   width: 35rem;
   min-width: 35rem;
-
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -596,7 +595,7 @@ ul {
             background: rgba(255, 255, 255, 1);
             box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
             border-radius: 5px;
-            max-height: 6em;
+            max-height: 10em;
             overflow-y: scroll;
             list-style-type: none;
             margin: 0;
@@ -609,11 +608,13 @@ ul {
             @include scrollbar();
 
             li {
-              height: 2em;
+              max-height: 2.2em;
+              padding: .5rem 0;
               width: 100%;
               display: flex;
               justify-content: space-evenly;
               cursor: pointer;
+              
 
               &:hover {
                 background: rgba(255, 255, 255, 1);

@@ -7,11 +7,11 @@ import { useAuthStore } from "@/stores/auth";
 const authStore = useAuthStore();
 const email = ref<string>("");
 const password = ref<string>("");
-const remember = ref();
+const remember = ref(false);
 
-const handleLoginSubmit = (event: { preventDefault: () => void }) => {
+const handleLoginSubmit = async(event: { preventDefault: () => void }) => {
     event.preventDefault();
-    authStore.login(email.value, password.value);
+   await authStore.login(email.value, password.value, remember.value);
 };
 </script>
 <template>
@@ -33,7 +33,7 @@ const handleLoginSubmit = (event: { preventDefault: () => void }) => {
         <button @click="handleLoginSubmit">ورود</button>
         <div class="options">
           <label>
-            <input type="checkbox" v-model="remember" /> مرا به خاطر بسپار به
+            <input type="checkbox" v-model="remember" :value="remember" /> مرا به خاطر بسپار به
             مدت 20 روز
           </label>
           <p>فراموشی رمز عبور</p>

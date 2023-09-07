@@ -5,6 +5,8 @@ import { type User } from "@/types/model";
 import jwtUtil from "@/utils/jwt";
 import { ref } from "vue";
 import { mainStore } from "@/stores/main";
+import { useRouter } from "vue-router";
+
 // Types for the store state
 // interface User {
 //   user_id: number;
@@ -28,6 +30,7 @@ export const useAuthStore = defineStore("auth", () => {
   const sideBar = "false";
   const File = ref<any[]>([]);
   const useMain = mainStore();
+  const router = useRouter();
 
   async function getAllUsers() {
     try {
@@ -97,7 +100,9 @@ export const useAuthStore = defineStore("auth", () => {
           },
         });
         if (res?.status === 200) {
-          const userIndex = users.value.findIndex((user) => user.user_id === data.user_id);
+          const userIndex = users.value.findIndex(
+            (user) => user.user_id === data.user_id
+          );
           if (userIndex !== -1) {
             users.value[userIndex].name = res.data.user.name;
             users.value[userIndex].lastName = res.data.user.lastName;
@@ -130,13 +135,12 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  async function login(email: string, password: string) {
+  async function login(email: string, password: string, remember: boolean) {
     try {
-      const response = await axios.post("/users/login", { email, password });
-      console.log(response);
-      // jwtUtil.saveToken(response.token); // Save the token to local storage if needed
-      // this.isLoggedIn = true;
-      // this.errorMassage = '';
+      const res = await axios.post("/users/login", { email, password ,remember});
+      if (res?.status === 200) {
+        router.push({ path: "/"});
+      }
     } catch (error: any) {
       console.error(error.response.data.error);
       // this.isLoggedIn = false;
