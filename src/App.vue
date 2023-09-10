@@ -3,7 +3,9 @@ import { RouterView } from "vue-router";
 import { mainStore } from '@/stores/main';
 import ConfirmDialog from "./components/confirmDialog.vue";
 import Notification from "@/components/Notification.vue";
+
 const useMain = mainStore();
+
 
 // const handleConfirmDelete = async (confirmed: boolean) => {
 //   console.log(confirmed);

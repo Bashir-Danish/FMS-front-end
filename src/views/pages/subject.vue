@@ -39,48 +39,48 @@ const handleRecordUpdate = (subject: any) => {
   selectedRecord.value = subject;
   showUpdateForm.value = true;
 };
-const handleCreateSubject =()=>{
+const handleCreateSubject = () => {
   sbjFormData.value.name = ''
-  sbjFormData.value.credit =0
+  sbjFormData.value.credit = 0
   showSubjectCreateForm.value = true
 }
-const handleSubjectUpdate = (subject: any,dep_id:number,sem_id:number) => {
+const handleSubjectUpdate = (subject: any, dep_id: number, sem_id: number) => {
   selectedSubject.value = subject;
   selectedSubject.value.department_id = dep_id;
   selectedSubject.value.semester_id = sem_id;
   sbjFormData.value.name = subject.subject_name;
-  sbjFormData.value.credit =subject.credit;
+  sbjFormData.value.credit = subject.credit;
   showSubjectUpdateForm.value = true;
 };
-const createSingleSubject = async (dep_id:number,sem_id:number) => {
+const createSingleSubject = async (dep_id: number, sem_id: number) => {
   if (showSubjectCreateForm.value) {
     try {
       let data = {
-        department_id : dep_id,
-        semester_id:sem_id,
+        department_id: dep_id,
+        semester_id: sem_id,
         name: sbjFormData.value.name,
         credit: sbjFormData.value.credit
       }
       await useMain.addSubjectToRecord(data);
-      showSubjectCreateForm.value = false 
+      showSubjectCreateForm.value = false
       sbjFormData.value.name = ''
       sbjFormData.value.credit = 0
-      
+
     } catch (error) {
       console.error('Error creating user:', error);
     }
   } else if (selectedSubject.value && showSubjectUpdateForm.value) {
     try {
       let data = {
-        subject_id:selectedSubject.value.subject_id,
+        subject_id: selectedSubject.value.subject_id,
         name: sbjFormData.value.name,
         credit: sbjFormData.value.credit,
-        department_id : dep_id,
-        semester_id:sem_id,
+        department_id: dep_id,
+        semester_id: sem_id,
       }
 
       await useMain.updateSubject(data);
-      showSubjectUpdateForm.value = false 
+      showSubjectUpdateForm.value = false
       sbjFormData.value.name = ''
       sbjFormData.value.credit = 0
     } catch (error) {
@@ -155,8 +155,8 @@ const selectSemester = (semester: Semester) => {
   formData.value.semester_id = semester.semester_id;
 }
 onMounted(async () => {
-  await useMain.getAllSubjects();
-  await useMain.getAllSemesters();
+  // await useMain.getAllSubjects();
+  // await useMain.getAllSemesters();
 });
 </script>
 <template>
@@ -177,9 +177,10 @@ onMounted(async () => {
                     autocomplete="false">
                   <TransitionGroup name="list" appear>
                     <ul class="select-ul" v-if="departmentDrop">
+
                       <li v-for="department in useMain.departmentData" :key="department.department_id"
-                        @click.stop="selectDepartement(department)">
-                        <span>{{ department.name }}</span>
+                        @click.self="selectDepartement(department)">
+                        <span @click.self="selectDepartement(department)">{{ department.name }}</span>
                       </li>
                     </ul>
                   </TransitionGroup>
@@ -191,12 +192,12 @@ onMounted(async () => {
                   <input id="semester" type="text" v-model="useMain.semesterSTR" @focus="semesterDrop = true"
                     @blur="semesterDrop = false" placeholder="سمستر مربوطه را انتخاب کنید" required autocomplete="false">
                   <TransitionGroup name="list" appear>
+
                     <ul class="select-ul" v-if="semesterDrop">
-                      <li v-for="semester in useMain.semesterData" :key="semester.semester_id"
-                        @click.stop="selectSemester(semester)">
-                        <span>{{ translateSemesterNumber(semester.semester_number) }}</span>
-                        <span>{{ semester.name }}</span>
-                        <span>{{ semester.year }}</span>
+                      <li v-for="(semester, index) in useMain.semesterData" :key="index"
+                        @click="selectSemester(semester)">
+                        {{ translateSemesterNumber(semester.semester_number) }} {{
+                          semester.name }} {{ semester.year }}
                       </li>
                     </ul>
                   </TransitionGroup>
@@ -252,7 +253,9 @@ onMounted(async () => {
                 placeholder="کردیت را وارد کنید" />
 
               <div class="buttons">
-                <button type="button" @click="createSingleSubject(selectedRecord.department_id,selectedRecord.semester_id)">{{ showSubjectCreateForm ? 'ذخیره' : 'ویرایش' }}</button>
+                <button type="button"
+                  @click="createSingleSubject(selectedRecord.department_id, selectedRecord.semester_id)">{{
+                    showSubjectCreateForm ? 'ذخیره' : 'ویرایش' }}</button>
                 <button @click="showSubjectCreateForm = false, showSubjectUpdateForm = false" type="button">لغو</button>
               </div>
             </form>
@@ -261,7 +264,8 @@ onMounted(async () => {
                 <li v-for="item in selectedRecord.subjects" :key="item">
                   <span>{{ item.subject_name }}</span>
                   <span>{{ item.credit }}</span>
-                  <span class="edit" @click="handleSubjectUpdate(item,selectedRecord.department_id,selectedRecord.semester_id)">
+                  <span class="edit"
+                    @click="handleSubjectUpdate(item, selectedRecord.department_id, selectedRecord.semester_id)">
                     <Icon color="green">
                       <PencilOutline />
                     </Icon>
@@ -590,40 +594,32 @@ ul {
           position: relative;
 
           .select-ul {
+            max-height: 10rem;
             position: absolute;
+            top: 3rem;
             width: 100%;
             background: rgba(255, 255, 255, 1);
             box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
             border-radius: 5px;
-            max-height: 10em;
-            overflow-y: scroll;
-            list-style-type: none;
-            margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            @include scrollbar();
+            margin: 0;
+            overflow-y: auto;
+            font-size: 1rem;
 
             li {
-              max-height: 2.2em;
-              padding: .5rem 0;
-              width: 100%;
-              display: flex;
-              justify-content: space-evenly;
+              text-align: center;
+              max-height: 1.8em;
+              height: 1.8em;
               cursor: pointer;
-              
 
-              &:hover {
-                background: rgba(255, 255, 255, 1);
-              }
-
-              span {
-                height: 100%;
-              }
             }
+
+            @include hideScrollbar();
+
+            &:hover {
+              @include scrollbar();
+            }
+
           }
         }
       }
@@ -777,6 +773,7 @@ ul {
     padding: 2rem;
     width: 70%;
     margin: 0 auto;
+
     .buttons {
       width: 60%;
       display: flex;

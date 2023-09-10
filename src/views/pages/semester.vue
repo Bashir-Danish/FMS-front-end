@@ -103,10 +103,11 @@ const sendSemesterToUpdate =async ()=> {
   });
   
   await useMain.processEnrolls(data)
+  useMain.semesterSTR = ''
   closeForm()
 }
 onMounted(async () => {
-  await useMain.getAllSemesters();
+  // await useMain.getAllSemesters();
 });
 </script>
 

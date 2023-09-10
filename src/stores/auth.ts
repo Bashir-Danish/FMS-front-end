@@ -28,7 +28,7 @@ export const useAuthStore = defineStore("auth", () => {
   const isLoggedIn = ref<AuthState>();
   const users = ref<User[]>([]);
   const sideBar = "false";
-  const File = ref<any[]>([]);
+ 
   const useMain = mainStore();
   const router = useRouter();
 
@@ -48,10 +48,8 @@ export const useAuthStore = defineStore("auth", () => {
     formData.append("email", data.email);
     formData.append("password", data.password);
     formData.append("userType", data.userType);
-    const filesToUpload = [...File.value];
-    filesToUpload.forEach((e) => {
-      formData.append("file", e);
-    });
+    formData.append("imagePath", data.picture);
+
     try {
       const res = await axios.post("/users/register", formData, {
         headers: {
@@ -69,7 +67,7 @@ export const useAuthStore = defineStore("auth", () => {
         });
 
         useMain.setMessage("کاربر", res.data.message, true);
-        File.value = [];
+        useMain.File = []
       }
 
       // console.log("User registration response:", res.data);
@@ -86,12 +84,8 @@ export const useAuthStore = defineStore("auth", () => {
     formData.append("email", data.email);
     formData.append("password", data.password);
     formData.append("userType", data.userType);
-    const filesToUpload = [...File.value];
-    if (filesToUpload.length) {
-      filesToUpload.forEach((e) => {
-        formData.append("file", e);
-      });
-    }
+    formData.append("imagePath", data.picture);
+  
     try {
       try {
         const res = await axios.put(`/users/${data.user_id}`, formData, {
@@ -110,6 +104,7 @@ export const useAuthStore = defineStore("auth", () => {
             users.value[userIndex].picture = res.data.user.picture;
             users.value[userIndex].email = res.data.user.email;
           }
+          console.log(res.data)
           useMain.setMessage("کاربر", res.data.message, true);
         }
       } catch (error) {
@@ -172,7 +167,7 @@ export const useAuthStore = defineStore("auth", () => {
     isLoggedIn,
     users,
     sideBar,
-    File,
+  
   };
 });
 

@@ -4,7 +4,18 @@ declare module "*.vue";
   declare interface ImportMeta {
     env: {
       BASE_URL: string;
-      // Add other environment variables here if needed
+   
+    };
+  }
+  
+
+  declare module 'epic-spinners' {
+    export const RadarSpinner: {
+      new (props: {
+        size?: number;
+        color?: string;
+        animationDuration?: number;
+      }): any; 
     };
   }
   

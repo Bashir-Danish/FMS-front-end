@@ -1,50 +1,32 @@
-<template>
-    <div class="" @dragover.prevent @drop.prevent>
-        <div @drop="dragFile" class="dropDiv">
-            <label for="inputTag">
-                <Icon class="inputTag">
-                    <Dismiss20Regular />
-                </Icon>
-                <input class="file" id="inputTag" name="file" accept="image/*" type="file" @change="uploadFile" required/>
-                <p v-if="!store.File.length">تصاویر را بکشید و رها کنید، یا برای انتخاب فایل‌ کلیک کنید</p>
-            </label>
-            <ul v-if="store.File.length">
-                <li v-for="file in store.File" :key="file.name">
-                    <span @click="remove()">
-                        <Icon size="18">
-                            <Dismiss20Regular />
-                        </Icon>
-                    </span>
-                    <img :src="generateURL(file)" :alt="file.name">
-                </li>
-            </ul>
-        </div>
-    </div>
-</template>
-
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
 import { mainStore } from "@/stores/main";
 import { Icon } from "@vicons/utils";
-import {
-    Dismiss20Regular
-} from "@vicons/fluent";
-import { ref } from "vue";
+import { Dismiss20Regular } from "@vicons/fluent";
+import { RadarSpinner } from 'epic-spinners'
+import { onMounted, watch } from "vue";
 const props = defineProps({
-    store: String,
-})
-let store = props.store === 'user' ? useAuthStore() : mainStore();
+    store: { type: String, required: true },
+    loading: { type: Boolean, required: false, default: false },
+});
+
+const emits = defineEmits(["selectImage"]);
+
+let store =  mainStore();
+
 const uploadFile = (e: any) => {
-    store.File = e.target.files
-}
+    store.File = e.target.files;
+    emits("selectImage");
+};
 
 const dragFile = (e: any) => {
-    store.File = []
+    store.File = [];
     const files = [...e.dataTransfer.files];
     files.forEach((e) => {
-        store.File.push(e)
-    })
-}
+        store.File.push(e);
+    });
+    emits("selectImage");
+};
 
 const generateURL = (file: any) => {
     let fileSrc = URL.createObjectURL(file);
@@ -52,14 +34,47 @@ const generateURL = (file: any) => {
         URL.revokeObjectURL(fileSrc);
     }, 1000);
     return fileSrc;
-}
+};
+
 const remove = () => {
     store.File = [];
-}
+};
 
 
 
 </script>
+
+<template>
+    <div class="" @dragover.prevent @drop.prevent>
+        <div @drop="dragFile" class="dropDiv">
+            <label for="inputTag">
+                <Icon class="inputTag">
+                    <Dismiss20Regular />
+                </Icon>
+                <input class="file" id="inputTag" name="file" accept="image/*" type="file" @change="uploadFile" required
+                    :disabled="loading" />
+                <p v-if="!store.File.length && !loading">
+                    تصاویر را بکشید و رها کنید، یا برای انتخاب فایل‌ کلیک کنید
+                </p>
+                <div class="loader" v-else-if="loading">
+                    <radar-spinner :animation-duration="2000" :size="50" color="#007bff" />
+                </div>
+            </label>
+            <ul v-if="store.File.length && !loading">
+                <li v-for="file in store.File" :key="file.name">
+                    <span @click="remove()">
+                        <Icon size="18">
+                            <Dismiss20Regular />
+                        </Icon>
+                    </span>
+                    <img :src="generateURL(file)" :alt="file.name" />
+                </li>
+            </ul>
+        </div>
+    </div>
+</template>
+
+  
 <style lang="scss" scoped>
 .dropDiv {
     max-height: 8em;
@@ -97,6 +112,13 @@ const remove = () => {
         text-align: center;
     }
 
+    .loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
     ul {
         margin: 0 auto;
         display: flex;
@@ -105,6 +127,7 @@ const remove = () => {
             z-index: 1000;
             position: relative;
             list-style-type: none;
+
             &:hover {
                 span {
                     opacity: 1;

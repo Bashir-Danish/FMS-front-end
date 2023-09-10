@@ -68,7 +68,7 @@ const closeForm = () => {
   showUpdateForm.value = false;
 };
 onMounted(async () => {
-  await useMain.getAllDepartments();
+  // await useMain.getAllDepartments();
 });
 </script>
 

@@ -24,6 +24,10 @@ export const mainStore = defineStore("main", () => {
   const sideBar = ref(true);
   const departments = ref<Department[]>([]);
   const semesters = ref<Semester[]>([]);
+  const enrollments = ref({
+    enrollment:<any>[],
+    subjects:<any>[]
+  });
   const subjectsPageRecord = ref<any[]>([]);
   const students = ref<Student[]>([]);
   const File = ref<any[]>([]);
@@ -180,15 +184,14 @@ export const mainStore = defineStore("main", () => {
         semesterIdsToProcess: semesters,
       });
       if (res?.status === 200) {
-      setMessage("سمستر", res.data.messages, true);
-
+        setMessage("سمستر", res.data.messages, true);
       }
     } catch (error: any) {
       // setMessage("سمستر", error.response.data.error, false);
       // console.error("Error creating semester:", error.response.data.error);
     }
   }
-  
+
   async function updateSemester(data: Semester) {
     try {
       const res = await axios.put(`/semesters/${data.semester_id}`, data);
@@ -227,7 +230,35 @@ export const mainStore = defineStore("main", () => {
   ////////////////////////////////////////////////////////////////////////
   ///////////////////////////    Enrolls     /////////////////////////////
   ////////////////////////////////////////////////////////////////////////
+  // Create a new student
+  async function uploadImage(filetype: string, id?: number | undefined) {
+    const formData = new FormData();
+    formData.append("fileType", filetype);
+    console.log(id);
 
+    if (id !== undefined) {
+      formData.append("id", id.toString());
+    }
+    const filesToUpload = [...File.value];
+    filesToUpload.forEach((e) => {
+      formData.append("file", e);
+    });
+    console.log(formData.get("file"));
+
+    try {
+      const res = await axios.post("/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (res?.status === 200) {
+        console.log(res.data.imagePath);
+        return res.data.imagePath;
+      }
+    } catch (error) {
+      console.error("Error creating student:", error);
+    }
+  }
 
   async function fetchEnrolls(departmentId: number, semesterId: number) {
     try {
@@ -237,13 +268,35 @@ export const mainStore = defineStore("main", () => {
           semesterId: semesterId,
         },
       });
-  
+
       if (response.status === 200) {
-        const enrolls = response.data; 
+        const enrolls = response.data;
         // console.log(enrolls);
         return enrolls;
       }
-    } catch (error:any) {
+    } catch (error: any) {
+      console.error("Error fetching enrolls:", error.message);
+    }
+  }
+
+  async function importGrade(
+    departmentId: number,
+    semesterId: number,
+    enrollmentsData: any
+  ) {
+    try {
+      const response = await axios.post("/enrolls/import", {
+        departmentId: departmentId,
+        semesterId: semesterId,
+        enrollmentsData:enrollmentsData
+      });
+
+      if (response.status === 200) {
+        const enrolls = response.data;
+        console.log(enrolls);
+        return enrolls;
+      }
+    } catch (error: any) {
       console.error("Error fetching enrolls:", error.message);
     }
   }
@@ -401,10 +454,8 @@ export const mainStore = defineStore("main", () => {
     formData.append("ssid", data.ssid.toString());
     formData.append("department_id", data.department_id.toString());
     formData.append("current_semester", data.current_semester.toString());
-    const filesToUpload = [...File.value];
-    filesToUpload.forEach((e) => {
-      formData.append("file", e);
-    });
+    formData.append("imagePath", data.picture.toString());
+
     try {
       const res = await axios.post("/students", formData, {
         headers: {
@@ -421,6 +472,7 @@ export const mainStore = defineStore("main", () => {
           picture: res.data.student.picture,
           current_semester: res.data.student.current_semester,
         });
+        console.log(res.data);
       }
     } catch (error) {
       console.error("Error creating student:", error);
@@ -436,12 +488,8 @@ export const mainStore = defineStore("main", () => {
     formData.append("ssid", data.ssid.toString());
     formData.append("department_id", data.department_id.toString());
     formData.append("current_semester", data.current_semester.toString());
-    const filesToUpload = [...File.value];
-    if (filesToUpload.length) {
-      filesToUpload.forEach((e) => {
-        formData.append("file", e);
-      });
-    }
+    formData.append("imagePath", data.picture.toString());
+
     try {
       const res = await axios.put(`/students/${data.student_id}`, formData, {
         headers: {
@@ -500,12 +548,10 @@ export const mainStore = defineStore("main", () => {
     updateDepartment,
     deleteDepartment,
     getAllSubjects,
-
     getAllSemesters,
     createSemester,
     updateSemester,
     deleteSemester,
-
     createSubject,
     updateSubject,
     deleteSubjectsBySemester,
@@ -518,6 +564,8 @@ export const mainStore = defineStore("main", () => {
     deleteSubjectById,
     processEnrolls,
     fetchEnrolls,
+    uploadImage,
+    importGrade,
     sideBar,
     departments,
     semesters,
@@ -530,6 +578,7 @@ export const mainStore = defineStore("main", () => {
     semesterData,
     departmentData,
     subjectItems,
+    enrollments
     // openConfirmDialog,
     // closeConfirmDialog,
     // confirmDialog

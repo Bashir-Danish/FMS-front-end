@@ -13,6 +13,9 @@ import {
   PencilOutline,
 } from "@vicons/ionicons5";
 import type { User } from '@/types/model';
+import { mainStore } from '@/stores/main';
+
+const useMain = mainStore();
 const useAuth = useAuthStore();
 
 const formData = ref({
@@ -32,6 +35,7 @@ const handleUpdate = (user: any) => {
   formData.value = { ...user };
   showUpdateForm.value = true;
 };
+const isLoading = ref();
 
 
 const handlePictureChange = () => {
@@ -92,10 +96,20 @@ const closeForm = () => {
   };
   showCreateForm.value = false;
   showUpdateForm.value = false;
-  useAuth.File = []
+  useMain.File = []
 
 };
+const selectImage = async (id?: number) => {
+  isLoading.value = true
+  const path = await useMain.uploadImage('user',id)
+  console.log(id);
 
+  if (path !== '') {
+    formData.value.picture = path;
+    isLoading.value = false
+    console.log(formData.value);
+  }
+};
 onMounted(async () => {
   await useAuth.getAllUsers();
 });
@@ -146,7 +160,9 @@ onMounted(async () => {
             <div class="image-input">
               <label for="image">پروفایل</label>
               <div class="dropzone">
-                <dropZone store="user"/>
+                <dropZone v-if="showCreateForm" store="user" :loading="isLoading" @selectImage="selectImage()" />
+                <dropZone v-if="showUpdateForm" store="user" :loading="isLoading"
+                  @selectImage="selectImage(selectedUser?.user_id)" />
               </div>
             </div>
   

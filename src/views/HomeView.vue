@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch ,onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import Header from "@/components/header.vue";
 import SidBar from "@/components/sidBar.vue";
 import { mainStore } from "@/stores/main";
@@ -23,8 +23,23 @@ watch(
     };
   }
 );
-onMounted(() => {
-  useMain.getAllDepartments();
+
+onMounted(async () => {
+  try {
+    await Promise.all([
+      useMain.getAllDepartments(),
+      useMain.getAllSemesters(),
+      useMain.getAllStudents(),
+      useMain.getAllSubjects(),
+    ]);
+
+    const res = await useMain.fetchEnrolls(useMain.departments?.[0]?.department_id ?? 1, useMain.semesters?.[0]?.semester_id ?? 1);
+
+    useMain.enrollments.enrollment = res.enrollments;
+    useMain.enrollments.subjects = res.subjects;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
 });
 </script>
 
@@ -58,16 +73,16 @@ onMounted(() => {
   // overflow-y: auto;
   // @include hideScrollbar();
 
-&:hover {
-  @include scrollbar();
-}
+  &:hover {
+    @include scrollbar();
+  }
 }
 
 .router-view-container {
   // overflow-y: auto;
   // height: calc(100vh - 6em);
-  margin-right:.5rem;
-  padding:0 0.7rem;
+  margin-right: .5rem;
+  padding: 0 0.7rem;
   // background: rgba(255, 255, 255, 0.3);
   // box-shadow: 0 2px 3px 0 rgba(31, 38, 135, 0.37),
   // 0 -1px 3px 0 rgba(116, 119, 156, 0.085);
@@ -77,6 +92,6 @@ onMounted(() => {
   // border: 2px solid rgba(255, 255, 255, 0.98);
   direction: rtl;
   border-radius: 1rem;
-  
+
 }
 </style>

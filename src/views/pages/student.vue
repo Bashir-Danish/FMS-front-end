@@ -16,7 +16,7 @@ import {
 import type { Student } from '@/types/model';
 const useAuth = useAuthStore();
 const useMain = mainStore();
-
+const isLoading = ref();
 const formData = ref({
   student_id: 0,
   name: '',
@@ -51,13 +51,15 @@ const handleSubmit = async () => {
     }
   } else if (showUpdateForm.value && selectedStudent.value) {
     try {
+      console.log(formData.value);
+
       await useMain.updateStudent({
         student_id: selectedStudent.value.student_id,
         name: formData.value.name,
         fname: formData.value.fname,
         ssid: formData.value.ssid,
         department_id: formData.value.department_id,
-        picture: '',
+        picture: formData.value.picture,
         current_semester: formData.value.current_semester
       });
       closeForm();
@@ -98,9 +100,20 @@ const closeForm = () => {
   showUpdateForm.value = false;
   useMain.File = []
 };
+const selectImage = async (id?: number) => {
+  isLoading.value = true
+  const path = await useMain.uploadImage('student',id)
+  if (path !== '') {
+    formData.value.picture = path;
+    isLoading.value = false
+    console.log(formData.value);
+
+  }
+};
 
 onMounted(async () => {
-  await useMain.getAllStudents();
+  // await useMain.getAllStudents();
+
 });
 </script>
 
@@ -149,7 +162,9 @@ onMounted(async () => {
             <div class="image-input">
               <label for="image">پروفایل</label>
               <div class="dropzone">
-                <dropZone store="student" />
+                <dropZone v-if="showCreateForm" store="student" :loading="isLoading" @selectImage="selectImage()" />
+                <dropZone v-if="showUpdateForm" store="student" :loading="isLoading"
+                  @selectImage="selectImage(selectedStudent?.student_id)" />
               </div>
             </div>
 
@@ -486,6 +501,7 @@ ul {
         gap: 1rem;
         padding: 0 1rem;
         width: 100%;
+
         .input-group {
           display: flex;
           flex-direction: column;
