@@ -18,6 +18,7 @@ export const mainStore = defineStore("main", () => {
   //   },
   // });
 
+  const baseUrl = ref('https://api.kdanish.com');
   const semesterSTR = ref();
   const departmentSTR = ref();
 
@@ -566,6 +567,7 @@ export const mainStore = defineStore("main", () => {
     fetchEnrolls,
     uploadImage,
     importGrade,
+    baseUrl,
     sideBar,
     departments,
     semesters,

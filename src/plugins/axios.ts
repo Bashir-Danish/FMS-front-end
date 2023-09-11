@@ -4,7 +4,8 @@ import axios from "axios";
 
 axios.defaults.withCredentials = true
 const _axios = axios.create({
-  baseURL: "http://localhost:5000/api/v1",
+  baseURL: "https://api.kdanish.com/api/v1",
+  // baseURL: "http://localhost:5000/api/v1",
   headers: {
     "Content-Type": "application/json",    
     withCredentials: true, credentials: 'include'}
