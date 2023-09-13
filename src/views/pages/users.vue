@@ -197,7 +197,6 @@ onMounted(async () => {
             <div class="user-picture">
               <!-- <img v-if="user.picture" :src="'http://localhost:5000' + user.picture" alt="" srcset=""> -->
               <img v-if="user.picture" :src="useMain.baseUrl + user.picture" alt="" srcset="">
-              <!-- <img v-if="user.picture" :src="user.picture" alt="Profile Picture" /> -->
               <span v-else>No picture</span>
             </div>
             <p class="user-name">{{ user.name }} {{ user.lastName }}</p>
