@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import BaseInput from "@/components/smallcomponents/baseinput.vue";
+import BaseInput from '@/components/smallcomponents/baseinput.vue';
 import { useAuthStore } from "@/stores/auth";
 
 
