@@ -12,10 +12,10 @@ const props = defineProps({
 
 const emits = defineEmits(["selectImage"]);
 
-let store =  mainStore();
+let store = mainStore();
 
 const uploadFile = (e: any) => {
-    store.File = e.target.files;
+    store.File = e.target.files[0];
     emits("selectImage");
 };
 
@@ -51,8 +51,8 @@ const remove = () => {
                 <Icon class="inputTag">
                     <Dismiss20Regular />
                 </Icon>
-                <input class="file" id="inputTag" name="file" accept="image/*" type="file" @change="uploadFile" required
-                    :disabled="loading" />
+                <input class="file" id="inputTag" name="file" accept="image/*" type="file" @change="uploadFile($event)"
+                    required :disabled="loading" />
                 <p v-if="!store.File.length && !loading">
                     تصاویر را بکشید و رها کنید، یا برای انتخاب فایل‌ کلیک کنید
                 </p>

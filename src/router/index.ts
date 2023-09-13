@@ -4,7 +4,7 @@ import isAuthenticated from '@/utils/jwt'
 const HomeView = () => import('@/views/HomeView.vue')
 const AuthView = () => import('@/views/AuthView.vue')
 const notFound = () => import('@/views/notFound.vue')
-const Login = () => import('@/components/auth/login.vue')
+const Login = () => import('@/components/Auth/Login.vue')
 const about = () => import('@/views/pages/about.vue')
 const enrolls = () => import('@/views/pages/enrolls.vue')
 const department = () => import('@/views/pages/department.vue')

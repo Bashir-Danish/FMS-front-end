@@ -1,35 +1,14 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router";
 import { mainStore } from '@/stores/main';
-import ConfirmDialog from "./components/confirmDialog.vue";
 import Notification from "@/components/Notification.vue";
 
 const useMain = mainStore();
-
-
-// const handleConfirmDelete = async (confirmed: boolean) => {
-//   console.log(confirmed);
-  
-//   if (confirmed == true ) {
-//     try {
-//       // await useMain.deleteDepartment(id);
-//       // await useMain.getAllDepartments();
-//       console.log('yes');
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   }
-//   // useMain.closeConfirmDialog();
-// };
 </script>
+
+
 <template>
   <div class="app">
-    <!-- <ConfirmDialog
-      v-if="useMain.confirmDialog.showConfirmDialog"
-      :title="useMain.confirmDialog.confirmDialogData.title"
-      :message="useMain.confirmDialog.confirmDialogData.message"
-      :onConfirmCallback="useMain.confirmDialog.confirmDialogData.onConfirmCallback"
-    /> -->
     <Transition  name="bounce">
         <Notification v-if="useMain.errorMessage.message" />
     </Transition>
