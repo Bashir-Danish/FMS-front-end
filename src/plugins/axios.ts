@@ -4,10 +4,9 @@ const _axios = axios.create({
   baseURL: "https://api.kdanish.com/api/v1",
   // baseURL: "http://localhost:5000/api/v1",
   headers: {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
     withCredentials: true,
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': '*',
     credentials: "include",
   },
 });

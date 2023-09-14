@@ -1,3 +1,12 @@
+
+
 export const devServer = {
-    proxy: "https://api.kdanish.com",
+    proxy: {
+        "*": {
+            target: "https://api.kdanish.com",
+            secure: false,
+            changeOrigin: true,
+        },
+    },
 };
+  
