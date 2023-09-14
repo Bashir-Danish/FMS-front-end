@@ -2,13 +2,7 @@ import axios from "axios";
 
 const _axios = axios.create({
   baseURL: "https://api.kdanish.com/api/v1",
-  // baseURL: "http://localhost:5000/api/v1",
-  headers: {
-    withCredentials: true,
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': '*',
-    credentials: "include",
-  },
+  withCredentials: true,
 });
 
 _axios.interceptors.request.use(
@@ -29,4 +23,5 @@ _axios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
 export default _axios;
