@@ -82,16 +82,16 @@ router.beforeEach((to, from, next) => {
   next();
 });
 
-router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.isAuthenticated)) {
-    if (isAuthenticated()) {
-      next()
-    } else {
-      next('/login')
-    }
-  } else {
-    next()
-  }
-})
+// router.beforeEach((to, from, next) => {
+//   if (to.matched.some(record => record.meta.isAuthenticated)) {
+//     if (isAuthenticated()) {
+//       next()
+//     } else {
+//       next('/login')
+//     }
+//   } else {
+//     next()
+//   }
+// })
 
 export default router
