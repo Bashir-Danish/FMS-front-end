@@ -15,7 +15,11 @@ const emits = defineEmits(["selectImage"]);
 let store = mainStore();
 
 const uploadFile = (e: any) => {
-    store.File = e.target.files[0];
+    store.File = [];
+    const files = [...e.target.files];
+    files.forEach((e) => {
+        store.File.push(e);
+    });
     emits("selectImage");
 };
 

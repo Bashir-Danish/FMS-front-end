@@ -199,7 +199,6 @@ onMounted(async () => {
           <div class="list-item-content">
             <span class="number">{{ index + 1 }}</span>
             <div class="student-picture">
-              <!-- <img v-if="student.picture" :src="'http://localhost:5000' + student.picture" alt="" srcset=""> -->
               <img v-if="student.picture" :src="useMain.baseUrl + student.picture" alt="" srcset="">
               <span v-else>No picture</span>
             </div>

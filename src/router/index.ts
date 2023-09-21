@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import isAuthenticated from '@/utils/jwt'
+import {isAuthenticated} from '@/utils/jwt'
 
 const HomeView = () => import('@/views/HomeView.vue')
 const AuthView = () => import('@/views/AuthView.vue')
@@ -20,39 +20,42 @@ const router = createRouter({
     {
       path: '/',
       component: HomeView,
-      meta: { isAuthenticated: true },
+      meta: { isAuthenticated: true,  title: 'FMS | خانه' },
       children: [
-        // {
-        //   path: 'about',
-        //   component: about
-        // },
         {
           path: 'student',
-          component: student
+          component: student,
+          meta: {  title: 'FMS | محصلین' },
         },
         {
           path: 'enrolls',
-          component: enrolls
+          component: enrolls,
+          meta: {  title: 'FMS | نمرات' },
         },
         {
           path: 'profile',
-          component: profile
+          component: profile,
+          meta: {  title: 'FMS | پروفایل' },
         },
         {
           path: 'settings/department',
-          component: department
+          component: department,
+          meta: {  title: 'FMS | دیپارتنمت' },
         },
         {
           path: 'settings/semester',
-          component: semester
+          component: semester,
+          meta: {  title: 'FMS | سمستر' },
         },
         {
           path: 'settings/subject',
-          component: subject
+          component: subject,
+          meta: {  title: 'FMS | مضامین' },
         },
         {
           path: 'settings/user',
-          component: users
+          component: users,
+          meta: {  title: 'FMS | کاربران' },
         }
 
       ]
@@ -74,16 +77,21 @@ const router = createRouter({
   ]
 })
 
-// router.beforeEach((to, from, next) => {
-//   if (to.matched.some(record => record.meta.isAuthenticated)) {
-//     if (isAuthenticated()) {
-//       next()
-//     } else {
-//       next('/login')
-//     }
-//   } else {
-//     next()
-//   }
-// })
+router.beforeEach((to, from, next) => {
+  document.title = String(to.meta.title) || 'FMS';
+  next();
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.isAuthenticated)) {
+    if (isAuthenticated()) {
+      next()
+    } else {
+      next('/login')
+    }
+  } else {
+    next()
+  }
+})
 
 export default router

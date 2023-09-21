@@ -1,268 +1,166 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 import { mainStore } from '@/stores/main';
-import { type Semester } from '@/types/model';
-import { Icon } from "@vicons/utils";
-import { Delete24Regular, ArrowCollapseAll20Regular, ArrowAutofitHeightDotted20Filled } from "@vicons/fluent";
-import BaseInput from "@/components/smallcomponents/baseinput.vue";
-import {
-  Add,
-  PencilOutline,
-} from "@vicons/ionicons5";
+
+const useAuth = useAuthStore();
 const useMain = mainStore();
 
-const formData = ref({
-  name: '',
-  year: 0,
-  semester_number: 0
-});
-const showCreateForm = ref(false);
-const showUpdateForm = ref(false);
-const semSaveChange = ref(false);
 
-const selectedSemester = ref<Semester | null>(null);
-const semesterToChange = ref<Semester[]>([])
-const seasons = ['بهاری', 'تابستانی', 'خزانی', 'زمستانی'];
-
-
-const handleUpdate = (semester: Semester) => {
-  selectedSemester.value = semester;
-  formData.value = { ...semester };
-
-  showUpdateForm.value = true;
-};
-
-const handleSubmit = async () => {
-  if (showCreateForm.value) {
-    try {
-      await useMain.createSemester(formData.value);
-      closeForm();
-    } catch (error) {
-      console.error('Error creating semester:', error);
-    }
-  } else if (showUpdateForm.value && selectedSemester.value) {
-    try {
-      await useMain.updateSemester({
-        semester_id: selectedSemester.value.semester_id,
-        name: formData.value.name,
-        year: formData.value.year,
-        semester_number: formData.value.semester_number,
-      });
-      closeForm();
-    } catch (error) {
-      console.error('Error updating semester:', error);
-    }
-  }
-};
-
-const handleDelete = async (id: number) => {
-  const shouldDelete = window.confirm("Are you sure you want to delete this semester?");
-  if (shouldDelete) {
-    try {
-      await useMain.deleteSemester(id);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-};
-
-const closeForm = () => {
-  selectedSemester.value = null;
-  formData.value = {
-    name: '',
-    year: 0,
-    semester_number: 0
-  };
-  showCreateForm.value = false;
-  showUpdateForm.value = false;
-  semSaveChange.value = false;
-  semesterToChange.value = [] ;
-};
-const translateSemesterNumber = (number: number) => {
-  const translations = ["اول", "دوم", "سوم", "چهارم", "پنجم", "ششم", "هفتم", "هشتم"];
-
-  if (number >= 1 && number <= 8) {
-    return translations[number - 1];
-  } else {
-    return "نامعلوم";
-  }
-}
-const filterSavedSemester = (semester_id: number) => {
-  semesterToChange.value = semesterToChange.value.filter(s => s.semester_id != semester_id)
-}
-const addToSavedSemester = (semester: Semester) => {
-  const existingSemester = semesterToChange.value.find(s => s.semester_id === semester.semester_id);
-  if (!existingSemester) {
-    semesterToChange.value.push(semester);
-  }
-}
-const sendSemesterToUpdate =async ()=> {
-  let data = <any>[]
-  semesterToChange.value.forEach(element => {
-    data.push(element.semester_id);
-  });
-  
-  await useMain.processEnrolls(data)
-  useMain.semesterSTR = ''
-  closeForm()
-}
-onMounted(async () => {
-  // await useMain.getAllSemesters();
-});
 </script>
 
-
 <template>
-  <div>
-    <div v-if="showCreateForm || showUpdateForm || semSaveChange" class="dark-container" @click="closeForm"></div>
-    <TransitionGroup name="bounce">
-      <div v-if="showCreateForm || showUpdateForm" class="semester-form-overlay">
-        <div class="semester-form">
-          <h2 v-if="showCreateForm">ایجاد ترم جدید</h2>
-          <h2 v-if="showUpdateForm">ویرایش ترم</h2>
-          <form @submit.prevent="handleSubmit">
-            <div class="input-group">
-              <label for="type">نوع ترم:</label>
-              <select v-model="formData.name" id="type" required>
-                <option value="" disabled selected>انتخاب نوع ترم</option>
-                <option v-for="season in seasons" :key="season" :value="season">{{ season }}</option>
-              </select>
-            </div>
-
-            <div class="selects-group">
-              <div class="input-group">
-                <label for="year">سال:</label>
-                <select v-model="formData.year" id="year" class="custom-select">
-                  <option value="" disabled selected>انتخاب سال</option>
-                  <option v-for="i in 50" :key="1370 + i" :value="1370 + 50 - i">{{ 1370 + 50 - i }}</option>
-                </select>
-
-              </div>
-              <div class="input-group">
-                <label for="number">شماره ترم:</label>
-                <select v-model="formData.semester_number" id="number" required>
-                  <option v-for="i in 8" :key="i" :value="i">{{ i }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="button-group">
-              <button type="submit">{{ showCreateForm ? 'ذخیره' : 'ویرایش' }}</button>
-              <button @click="closeForm" type="button">لغو</button>
-            </div>
-          </form>
+  <div class="profile-content">
+    <div class="auth-container">
+      <div class="blur-container">
+        <div class="avatar">
+          <img class="image" v-if="useAuth.userData && useAuth.userData.picture"
+            :src="useMain.baseUrl + useAuth.userData.picture" alt="" srcset="" />
+          <img v-else src="@/assets/images/person.png" alt="" />
         </div>
+        <div class="blur"></div>
       </div>
-    </TransitionGroup>
-    <TransitionGroup name="bounce">
-      <div v-if="semSaveChange" class="save-semester-overlay">
-        <div class="semester-form">
-          <h3>سمستر های که میخواهید تغیرات روی آنها اعمال شود را انتخاب کنید</h3>
-          <form @submit.prevent="handleSubmit">
-            <ul class="edit-semester-ul">
-              <input type="text" class="search-semester" placeholder="جستجو...." v-model="useMain.semesterSTR">
-              <transition-group name="listTransition">
-                <li v-for="(semester, index) in useMain.semesterData" :key="index" >
-                  <span>{{ translateSemesterNumber(semester.semester_number) }}</span>
-                  <span>{{ semester.name }}</span>
-                  <span>{{ semester.year }}</span>
-                  <span class="add" @click="addToSavedSemester(semester)">
-                    <Icon>
-                      <Add />
-                    </Icon>
-                  </span>
-                </li>
-              </transition-group>
-            </ul>
-            <span class="divider">
-              <Icon>
-                <ArrowAutofitHeightDotted20Filled />
-              </Icon>
-            </span>
-            <ul class="edit-semester-ul">
-              <transition-group name="listTransition" v-if="semesterToChange.length">
-                <li v-for="(semester, index) in semesterToChange" :key="index">
-                  <span>{{ translateSemesterNumber(semester.semester_number) }}</span>
-                  <span>{{ semester.name }}</span>
-                  <span>{{ semester.year }}</span>
-                  <span class="trash" @click="filterSavedSemester(semester.semester_id)">
-                    <Icon>
-                      <Delete24Regular />
-                    </Icon>
-                  </span>
-                </li>
-              </transition-group>
-              <span class="empty-text" v-else>
-                خالی
-              </span>
-            </ul>
-            <div class="button-group">
-              <button type="submit" @click="sendSemesterToUpdate()">تغیرات اعمال شود</button>
-              <button @click="closeForm" type="button">لغو</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </TransitionGroup>
-
-    <div class="semesters-list">
-      <div class="header">
-        <span id="num">
-          شماره
-        </span>
-        <span id="name">
-          نوع ترم
-        </span>
-        <span id="year">
-          سال
-        </span>
-        <span id="semester-number">
-          شماره ترم
-        </span>
-        <span id="add-sem-buttons">
-          <button @click="semSaveChange = true">
-            <Icon>
-              <ArrowCollapseAll20Regular />
-            </Icon>
-          </button>
-          <button @click="showCreateForm = true">
-            <Icon>
-              <Add />
-            </Icon>
-          </button>
-        </span>
-      </div>
-      <ul>
-        <li v-for="(semester, index) in useMain.semesters" :key="semester.semester_id" class="item">
-          <div class="list-item-content">
-            <span class="number">{{ index + 1 }}</span>
-            <p class="semester-name">{{ semester.name }}</p>
-            <p class="semester-year">{{ semester.year }}</p>
-            <p class="semester-number">{{ semester.semester_number }}</p>
-            <div class="edit-sem-buttons">
-              <button @click="handleUpdate(semester)">
-                <Icon size="20" color="green">
-                  <PencilOutline />
-                </Icon>
-              </button>
-              <button @click="handleDelete(semester.semester_id)">
-                <Icon size="20" color="red">
-                  <Delete24Regular />
-                </Icon>
-              </button>
-            </div>
-          </div>
-        </li>
-      </ul>
     </div>
   </div>
 </template>
-  
+
 <style scoped lang="scss">
 @import "@/assets/variables.scss";
 @import "@/assets/mixin.scss";
 
-.semesters-list {
+
+
+.auth-container {
+  display: flex;
   width: 100%;
+  height: 100vh;
+
+  .auth-form {
+    flex: 1;
+    z-index: 100;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+
+    form {
+      padding: 1em;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: right;
+
+      h1 {
+        margin-bottom: 0.5em;
+        color: $dOp-9;
+      }
+
+      p {
+        margin-bottom: 2.5em;
+        color: $dOp-5;
+      }
+
+      .form-group {
+        margin-bottom: 1em;
+        width: 100%;
+
+        label {
+          display: block;
+          font-weight: 500;
+          color: $dOp-7;
+          margin-bottom: 5px;
+        }
+
+        input {
+          width: 100%;
+          padding: 0.9em 1em;
+          border: 1px solid lighten($color-border, 5%);
+          border-radius: 6px;
+          font-size: 1em;
+          margin-bottom: 0.7em;
+          text-align: right;
+        }
+      }
+
+      button {
+        width: 100%;
+        padding: 15px;
+        background-color: darken($primary, 10%);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 1em;
+        font-weight: 500;
+        transition: background-color 0.3s ease-in-out;
+
+        &:hover {
+          background-color: $primary;
+        }
+      }
+
+      .options {
+        margin-top: 1.5em;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+
+        p {
+          font-size: 0.9em;
+          color: darken($primary, 10%);
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+}
+
+.blur-container {
+  flex: 1;
+  z-index: 100;
+  height: 100%;
+  width: 100%;
+  position: relative;
+
+  .blur {
+    width: 100%;
+    height: 70%;
+    position: absolute;
+    bottom: 0;
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(3px);
+    background-color: rgba(255, 255, 255, 0.151);
+    border-top: 1px solid $bgOp-9;
+    z-index: 3;
+  }
+
+  .avatar {
+    width: 12rem;
+    height: 12rem;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6;
+    border: 2px solid #fff;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+}
+
+.profile-content {
+  width: 100%;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -274,516 +172,16 @@ onMounted(async () => {
   border-radius: 10px;
   border: 2px solid rgba(255, 255, 255, 0.98);
   height: calc(100vh - 6.5em);
-  // font-size: 16px;
 
   @include hideScrollbar();
 
   &:hover {
     @include scrollbar();
   }
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: .8rem;
-  box-shadow: 0 4px 2px -2px rgba(31, 38, 135, 0.17);
-  background-color: #FAFBFF;
-  // position: sticky;
-  // top: 3rem;
-  font-size: 1.1rem;
-  z-index: 1;
-  border-radius: 5px;
-
-  #num {
-    width: 15%;
-    padding: 0 1rem;
-  }
-
-  #name {
-    width: 20%;
-
-  }
-
-  #year {
-    width: 25%;
-    padding: 0 1rem;
-
-  }
-
-
-  #semester-number {
-    width: 25%;
-
-  }
-
-  #add-sem-buttons {
-    display: flex;
-    justify-content: center;
-    width: 15%;
-
-    button {
-      background-color: #fff;
-      border-radius: 5px;
-      font-size: 25px;
-      width: 30px;
-      height: 100%;
-      border: 1px solid $dOp-1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: $dOp-2;
-      margin: 0 auto;
-      cursor: pointer;
-
-      &:hover {
-        color: $primary;
-      }
-    }
-  }
-}
-
-ul {
-  list-style: none;
-  padding: .5rem 0 0 0;
-  width: 100%;
-  @include hideScrollbar();
-
-  &:hover {
-    @include scrollbar();
-  }
-
-  overflow-y: auto;
-
-
-  .item {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    padding: .8rem;
-    background: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 2px 2px 0 rgba(31, 38, 135, 0.17), 0 -2px 2px 0 rgba(116, 119, 156, 0.085);
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    border-radius: 10px;
-
-    .list-item-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-
-      .number {
-        width: 15%;
-        padding: 0 1rem;
-      }
-
-      .semester-name {
-        width: 20%;
-        padding: 0 .5rem;
-
-      }
-
-      .semester-year {
-        width: 25%;
-        padding: 0 .5rem;
-
-      }
-
-      .semester-number {
-        width: 25%;
-        padding: 0 .5rem;
-
-      }
-
-
-
-      .edit-sem-buttons {
-        flex: 1;
-        width: 15%;
-        display: flex;
-        justify-content: end;
-
-        button {
-          background-color: transparent;
-          border: none;
-          margin-left: 1rem;
-          cursor: pointer;
-        }
-
-      }
-    }
-  }
-}
-
-.semester-form-overlay {
-  position: absolute;
-  height: 20rem;
-  max-height: 20rem;
-  width: 20rem;
-  min-width: 25rem;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.975);
-  box-shadow: 0 10px 10px 0 rgba(31, 38, 135, 0.17),
-    0 -2px 15px 0 rgba(116, 119, 156, 0.085);
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
-  border-radius: 10px;
-  z-index: 800;
-
-  .semester-form {
-    h2 {
-      text-align: center;
-    }
-
-    form {
-      .selects-group {
-        display: flex;
-        width: 90%;
-        margin: 0 auto;
-        gap: 1rem;
-      }
-
-      .input-group {
-        display: flex;
-        flex-direction: column;
-        width: 90%;
-        margin: 0 auto;
-
-        select {
-          width: 100%;
-          padding: 0.9em 1em;
-          border: 1px solid lighten($color-border, 5%);
-          border-radius: 6px;
-          font-size: 1em;
-          margin-bottom: 1rem;
-          text-align: right;
-        }
-      }
-
-      .button-group {
-        width: 80%;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-evenly;
-
-        button {
-          border: none;
-          border-radius: 5px;
-          height: 2.5rem;
-          font-size: 1.1rem;
-          // width: 2.5rem;
-          width: 30%;
-          color: $gray-1;
-          cursor: pointer;
-
-          &:first-child {
-            background-color: $primary;
-          }
-
-          &:last-child {
-            background-color: $red;
-          }
-        }
-      }
-    }
-  }
-}
-
-.save-semester-overlay {
-  position: absolute;
-  height: 38rem;
-  width: 40rem;
-  min-width: 35rem;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.975);
-  box-shadow: 0 10px 10px 0 rgba(31, 38, 135, 0.17),
-    0 -2px 15px 0 rgba(116, 119, 156, 0.085);
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
-  border-radius: 10px;
-  z-index: 800;
-
-  .semester-form {
-    h3 {
-      text-align: center;
-    }
-
-    form {
-      margin: 0 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-
-      .input-group {
-        display: flex;
-        flex-direction: column;
-        width: 90%;
-        margin: 0 auto;
-      }
-
-      .edit-semester-ul {
-        overflow-y: scroll;
-        display: flex;
-        align-items: center;
-        flex-direction: column;
-        width: 100%;
-        border-radius: 5px;
-        min-height: 13rem;
-        max-height: 13rem;
-        // margin: 1em 0;
-        // padding: 1em 0;
-        position: relative;
-        list-style-type: none;
-        border: 1px dashed #ccc;
-        padding: 1em 0;
-
-        &:first-child {
-          margin: 1em 0;
-          padding: 0;
-
-        }
-
-        .search-semester {
-          width: 100%;
-          background-color: white;
-          z-index: 100;
-          position: sticky;
-          top: 0;
-          padding: 0.6em;
-          border: none;
-          outline: none;
-          border-bottom: 1px solid lighten($color-border, 5%);
-          font-size: 1.1em;
-          text-align: right;
-          text-align: center;
-
-
-          &:focus {
-            border-bottom: $primary 1px solid;
-
-          }
-        }
-
-        // background-color: #b6b0b0;
-
-        @include hideScrollbar();
-
-        &:hover {
-          @include scrollbar();
-        }
-
-        li {
-          width: 90%;
-          display: flex;
-          align-items: center;
-          padding: 0.3em;
-          margin: 0.3em;
-          border-radius: 5px;
-          min-height: 2.2rem;
-          background: transparent;
-          transition: 0.3s ease all;
-          box-shadow: 0 2px 3px 0 rgba(136, 137, 138, 0.37),
-            0 -1px 3px 0 rgba(160, 160, 160, 0.085);
-          // border-bottom: #cccccc 1px solid;
-          position: relative;
-          color: rgba(0, 0, 0, 0.7);
-
-          span {
-            width: 20%;
-            padding-right: 1em;
-
-            &:last-child {
-              width: 40%;
-            }
-          }
-
-
-          .add,
-          .trash {
-            left: 0em;
-            position: absolute;
-            font-size: 22px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: left;
-            cursor: pointer;
-
-            &:hover {
-              color: $primary;
-            }
-          }
-
-          .trash {
-            font-size: 20px;
-
-            &:hover {
-              color: $red;
-            }
-          }
-
-          &:hover {
-            background: rgba(244, 245, 247)
-          }
-        }
-
-        .empty-text {
-          font-size: 20px;
-          margin: auto;
-        }
-
-        &:hover {
-          border: 1px dashed $primary;
-          background: #fff;
-        }
-      }
-
-      .divider {
-        font-size: 25px;
-        height: 2rem;
-        margin: 0;
-        padding: 0;
-      }
-
-      .button-group {
-        width: 80%;
-        // margin: 0 auto;
-        display: flex;
-        justify-content: space-evenly;
-
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: 1.5rem;
-
-        button {
-          border: none;
-          border-radius: 5px;
-          height: 2.5rem;
-          font-size: 1.1rem;
-          width: 30%;
-          color: $gray-1;
-          cursor: pointer;
-
-          &:first-child {
-            background-color: $primary;
-          }
-
-          &:last-child {
-            background-color: $red;
-          }
-        }
-      }
-    }
-  }
-}
-
-select {
-  padding: 8px 20px 8px 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-color: white;
-  background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%);
-  background-position: calc(15px) center, calc(20px) center;
-  background-size: 5px 5px, 5px 5px;
-  background-repeat: no-repeat;
-}
-
-.custom-select option {
-  background-color: #fff;
-  color: #333;
-  padding: 8px;
-  transition: background-color 0.2s ease-in-out;
-}
-
-/* Hover effect for select options */
-.custom-select option:hover {
-  background-color: #f0f0f0;
-}
-
-/* Hover effect for select options */
-.dark-container {
-  background-color: #0000003f;
-  width: 100%;
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 500;
-}
-
-
-
-.bounce-enter-active {
-  animation: bounce-in 0.5s;
-}
-
-.bounce-leave-active {
-  animation: bounce-in 0.5s reverse;
-}
-
-@keyframes bounce-in {
-  0% {
-    transform: translate(-50%, -50%) scale(0);
-  }
-
-  50% {
-    transform: translate(-50%, -50%) scale(1.03);
-  }
-
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-
-.listTransition-enter-from {
-  opacity: 0;
-  transform: scale(0);
-}
-
-.listTransition-enter-to {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.listTransition-enter-active {
-  transition: all 0.5s ease;
-}
-
-.listTransition-leave-from {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.listTransition-leave-to {
-  opacity: 0;
-  transform: scale(0);
-}
-
-.listTransition-leave-active {
-  transition: all .4s ease;
-  position: absolute;
-}
-
-.listTransition-move {
-  transition: all 0.3s ease;
 }
 </style>
-  
+
+
+
 
 

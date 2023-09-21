@@ -20,6 +20,7 @@ const semFilterDrop = ref(false)
 const depFilterDrop = ref(false)
 const depId = ref()
 const semId = ref()
+const loader = ref(false)
 
 
 const depFilterText = ref()
@@ -143,20 +144,29 @@ const translateSemesterNumber = (number: number) => {
   }
 }
 const filterByDep = async (department: Department) => {
+  loader.value = true
   depFilterText.value = ''
   depId.value = department.department_id
   let res = await useMain.fetchEnrolls(depId.value, semId.value)
-  useMain.enrollments.enrollment = res.enrollments
-  useMain.enrollments.subjects = res.subjects
   // formData.value.department_id = department.department_id;
+  setTimeout(() => {
+    useMain.enrollments.enrollment = res.enrollments
+    useMain.enrollments.subjects = res.subjects
+    loader.value = false
+  }, 1200);
 }
 const filterBySem = async (semester: Semester) => {
+  loader.value = true
+
   semFilterText.value = ''
   semId.value = semester.semester_id
   let res = await useMain.fetchEnrolls(depId.value, semId.value)
-  useMain.enrollments.enrollment = res.enrollments
-  useMain.enrollments.subjects = res.subjects
   // formData.value.semester_id = semester.semester_id;
+  setTimeout(() => {
+    useMain.enrollments.enrollment = res.enrollments
+    useMain.enrollments.subjects = res.subjects
+    loader.value = false
+  }, 1200);
 }
 const closeForm = () => {
   selectedRecord.value = null;
@@ -312,7 +322,12 @@ onMounted(() => {
           فیصدی
         </span>
       </div>
-      <ul>
+      <div class="loader" v-if="loader">
+      <div class="fulfilling-square-spinner" >
+        <div class="spinner-inner"></div>
+      </div>
+    </div>
+      <ul v-if="useMain.enrollments.enrollment.length > 0">
         <li v-for="(enroll, index) in useMain.enrollments.enrollment" :key="index" class="item">
           <div class="list-item-content">
             <span class="number">{{ index + 1 }}</span>
@@ -345,7 +360,9 @@ onMounted(() => {
           </div>
         </li>
       </ul>
+      <p v-else class="empty-list-message">No items found.</p>
     </div>
+    
   </div>
 </template>
   
@@ -691,6 +708,86 @@ ul {
     }
   }
 
+}
+.loader{
+  width: 100%;
+  height: calc(100vh - 6.5em);
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  // background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+
+  .fulfilling-square-spinner,
+  .fulfilling-square-spinner * {
+    box-sizing: border-box;
+  }
+  
+  .fulfilling-square-spinner {
+    height: 40px;
+    width: 40px;
+    position: relative;
+    border: 3px solid $primary;
+    animation: fulfilling-square-spinner-animation 4s infinite ease;
+  }
+  
+  .fulfilling-square-spinner .spinner-inner {
+    vertical-align: top;
+    display: inline-block;
+    background-color: $primary;
+    width: 100%;
+    opacity: 1;
+    animation: fulfilling-square-spinner-inner-animation 2s infinite ease-in;
+  }
+  
+  @keyframes fulfilling-square-spinner-animation {
+    0% {
+      transform: rotate(0deg);
+    }
+  
+    25% {
+      transform: rotate(180deg);
+    }
+  
+    50% {
+      transform: rotate(180deg);
+    }
+  
+    75% {
+      transform: rotate(360deg);
+    }
+  
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes fulfilling-square-spinner-inner-animation {
+    0% {
+      height: 0%;
+    }
+  
+    25% {
+      height: 0%;
+    }
+  
+    50% {
+      height: 100%;
+    }
+  
+    75% {
+      height: 100%;
+    }
+  
+    100% {
+      height: 0%;
+    }
+  }
 }
 
 .enroll-form-overlay {

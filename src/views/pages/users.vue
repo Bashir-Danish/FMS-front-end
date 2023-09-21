@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useAuthStore } from '@/stores/auth';
 import BaseInput from "@/components/smallcomponents/baseinput.vue";
 import dropZone from '@/components/smallcomponents/dropzone.vue';
 import { Icon } from "@vicons/utils";
@@ -14,9 +13,10 @@ import {
 } from "@vicons/ionicons5";
 import type { User } from '@/types/model';
 import { mainStore } from '@/stores/main';
+import { useAuthStore } from '@/stores/auth';
 
-const useMain = mainStore();
 const useAuth = useAuthStore();
+const useMain = mainStore();
 
 const formData = ref({
   name: '',
@@ -151,8 +151,8 @@ onMounted(async () => {
                 <label for="number">شماره ترم:</label>
                 <select v-model="formData.userType" id="number" required>
                   <option value="" disabled selected> نوع کاربر</option>
-                  <option value="کاربر" >کاربر</option>
-                  <option value="استاد" >استاد</option>
+                  <option value="user" >کاربر</option>
+                  <option value="teacher" >استاد</option>
                 </select>
               </div>
   
@@ -195,7 +195,6 @@ onMounted(async () => {
           <div class="list-item-content">
             <span class="number">{{ index +1 }}</span>
             <div class="user-picture">
-              <!-- <img v-if="user.picture" :src="'http://localhost:5000' + user.picture" alt="" srcset=""> -->
               <img v-if="user.picture" :src="useMain.baseUrl + user.picture" alt="" srcset="">
               <span v-else>No picture</span>
             </div>

@@ -126,11 +126,11 @@ const handleItemClick = (item: MenuItem) => {
     };
     items.value.splice(index, 1, updatedItem);
   } else {
-    items.value.forEach((menuItem) => {
-      if (menuItem.children) {
-        menuItem.open = false;
-      }
-    });
+    // items.value.forEach((menuItem) => {
+    //   if (menuItem.children) {
+    //     menuItem.open = false;
+    //   }
+    // });
 
     navigate(item.link);
   }

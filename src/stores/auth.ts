@@ -2,21 +2,10 @@ import { defineStore } from "pinia";
 import axios from "@/plugins/axios";
 import { AxiosError } from "axios";
 import { type User } from "@/types/model";
-import jwtUtil from "@/utils/jwt";
+import { deleteAccessTokenCookie } from "@/utils/jwt";
 import { ref } from "vue";
 import { mainStore } from "@/stores/main";
 import { useRouter } from "vue-router";
-
-// Types for the store state
-// interface User {
-//   user_id: number;
-//   department_id: number;
-//   name: string;
-//   lastName: string;
-//   email: string;
-//   password: string;
-//   userType: 'Admin' | 'instructor';
-// }
 
 interface AuthState {
   isLoggedIn: { type: boolean; default: false };
@@ -28,19 +17,73 @@ export const useAuthStore = defineStore("auth", () => {
   const isLoggedIn = ref<AuthState>();
   const users = ref<User[]>([]);
   const sideBar = "false";
- 
+
   const useMain = mainStore();
   const router = useRouter();
+  const userId = ref();
+  const userData = ref();
+
+  function base64UrlDecode(base64Url: string) {
+    while (base64Url.length % 4 !== 0) {
+      base64Url += "=";
+    }
+
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const rawData = atob(base64);
+
+    try {
+      return JSON.parse(rawData);
+    } catch (error) {
+      console.error("Error parsing JSON from JWT payload:", error);
+      return null;
+    }
+  }
+
+  async function getUserDataFromCookie() {
+    const cookies = document.cookie.split(";");
+    let user = {};
+
+    for (const cookie of cookies) {
+      const [name, value] = cookie.trim().split("=");
+      if (name === "access_token") {
+        try {
+          const parts = value.split(".");
+          if (parts.length === 3) {
+            const payload = base64UrlDecode(parts[1]);
+
+            user = payload || {};
+            userId.value = (user as any).userId;
+          } else {
+            console.error("Invalid JWT token format");
+          }
+        } catch (error) {
+          console.error("Error parsing access token from cookie:", error);
+        }
+        break;
+      }
+    }
+  }
 
   async function getAllUsers() {
     try {
       const response = await axios.get("/users");
       users.value = response.data.users;
+    } catch (error: any) {
+      if (error.response.status == 401) {
+        deleteAccessTokenCookie();
+        router.push("/login");
+      }
+      console.error("Error retrieving users:", error);
+    }
+  }
+  async function getUserInfo() {
+    try {
+      const response = await axios.get(`/users/${userId.value}`);
+      userData.value = response.data.user;
     } catch (error) {
       console.error("Error retrieving users:", error);
     }
   }
-
   async function createUser(data: any) {
     const formData = new FormData();
     formData.append("name", data.name);
@@ -67,7 +110,7 @@ export const useAuthStore = defineStore("auth", () => {
         });
 
         useMain.setMessage("کاربر", res.data.message, true);
-        useMain.File = []
+        useMain.File = [];
       }
 
       // console.log("User registration response:", res.data);
@@ -85,7 +128,7 @@ export const useAuthStore = defineStore("auth", () => {
     formData.append("password", data.password);
     formData.append("userType", data.userType);
     formData.append("imagePath", data.picture);
-  
+
     try {
       try {
         const res = await axios.put(`/users/${data.user_id}`, formData, {
@@ -104,7 +147,7 @@ export const useAuthStore = defineStore("auth", () => {
             users.value[userIndex].picture = res.data.user.picture;
             users.value[userIndex].email = res.data.user.email;
           }
-          console.log(res.data)
+          console.log(res.data);
           useMain.setMessage("کاربر", res.data.message, true);
         }
       } catch (error) {
@@ -132,9 +175,13 @@ export const useAuthStore = defineStore("auth", () => {
 
   async function login(email: string, password: string, remember: boolean) {
     try {
-      const res = await axios.post("/users/login", { email, password ,remember});
+      const res = await axios.post("/users/login", {
+        email,
+        password,
+        remember,
+      });
       if (res?.status === 200) {
-        router.push({ path: "/"});
+        router.push({ path: "/" });
       }
     } catch (error: any) {
       console.error(error.response.data.error);
@@ -163,11 +210,14 @@ export const useAuthStore = defineStore("auth", () => {
     getAllUsers,
     createUser,
     updateUser,
+    getUserDataFromCookie,
     deleteUser,
+    getUserInfo,
     isLoggedIn,
+    userId,
+    userData,
     users,
     sideBar,
-  
   };
 });
 

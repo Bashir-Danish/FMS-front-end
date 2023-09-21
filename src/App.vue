@@ -46,7 +46,8 @@ const useMain = mainStore();
     height: 23vw;
     border-radius: 50%;
     // background:rgba(211, 232, 255, 0.822);
-    background: rgba(103, 176, 253, 0.822);
+    // background: rgba(103, 176, 253, 0.822);
+    background: rgba(50, 149, 255, 0.822);
     filter: blur(70px);
     z-index: -1;
   }

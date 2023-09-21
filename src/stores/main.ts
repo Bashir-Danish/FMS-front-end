@@ -7,6 +7,8 @@ import {
   type Semester,
 } from "@/types/model";
 import axios from "@/plugins/axios";
+import { deleteAccessTokenCookie } from "@/utils/jwt";
+import { useRouter } from "vue-router";
 
 export const mainStore = defineStore("main", () => {
   // const confirmDialog = reactive({
@@ -19,6 +21,7 @@ export const mainStore = defineStore("main", () => {
   // });
 
   const baseUrl = ref('https://api.kdanish.com');
+  // const baseUrl = ref('http://localhost:5000');
   const semesterSTR = ref();
   const departmentSTR = ref();
 
@@ -39,6 +42,7 @@ export const mainStore = defineStore("main", () => {
     message: "",
     success: false,
   });
+  const router = useRouter();
 
   const departmentData = computed(() => {
     if (departmentSTR.value) {
@@ -86,7 +90,11 @@ export const mainStore = defineStore("main", () => {
     try {
       const res = await axios.get("/departments");
       departments.value = res.data;
-    } catch (error) {
+    } catch (error:any) {
+      if (error.response.status == 401) {
+        deleteAccessTokenCookie();
+        router.push("/login");
+      }
       // console.error("Error retrieving departments:", error);
     }
   }
@@ -149,7 +157,11 @@ export const mainStore = defineStore("main", () => {
     try {
       const res = await axios.get("/semesters");
       semesters.value = res.data;
-    } catch (error) {
+    } catch (error:any) {
+      if (error.response.status == 401) {
+        deleteAccessTokenCookie();
+        router.push("/login");
+      }
       // console.error("Error retrieving semesters:", error);
     }
   }
@@ -312,7 +324,11 @@ export const mainStore = defineStore("main", () => {
       if (res?.status === 200) {
         subjectsPageRecord.value = res.data.subjects;
       }
-    } catch (error) {
+    } catch (error:any) {
+      if (error.response.status == 401) {
+        deleteAccessTokenCookie();
+        router.push("/login");
+      }
       console.error("Error retrieving subjects:", error);
     }
   }
@@ -442,7 +458,11 @@ export const mainStore = defineStore("main", () => {
     try {
       let response = await axios.get("/students");
       students.value = response.data.students;
-    } catch (error) {
+    } catch (error:any) {
+      if (error.response.status == 401) {
+        deleteAccessTokenCookie();
+        router.push("/login");
+      }
       console.error("Error retrieving students:", error);
     }
   }
