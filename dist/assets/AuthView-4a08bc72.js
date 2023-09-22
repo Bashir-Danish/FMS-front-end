@@ -1,0 +1,1 @@
+import{_ as a,A as c,o as e,c as _,b as n,w as s,f as r,g as i}from"./index-32ea14b6.js";const l={},u={class:"auth-container"};function d(f,p){const t=c("router-view");return e(),_("div",u,[n(t,null,{default:s(({Component:o})=>[(e(),r(i(o)))]),_:1})])}const v=a(l,[["render",d],["__scopeId","data-v-9ca297fa"]]);export{v as default};
