@@ -14,7 +14,7 @@ _axios.interceptors.request.use(
     if (token) {
       config.headers["Authorization"] = token;
     } else {
-      delete config.headers["Authorization"];
+      config.headers["Authorization"] = ''
     }
 
     config.withCredentials = true;
