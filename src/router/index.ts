@@ -67,7 +67,7 @@ const router = createRouter({
         {
           path: 'login',
           component: Login,
-          meta: {  isAuthenticated: true, title: 'FMS | Login' },
+          meta: { title: 'FMS | Login' },
         }
       ]
     },
