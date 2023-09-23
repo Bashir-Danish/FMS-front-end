@@ -17,7 +17,7 @@ const handleLoginSubmit = async(event: { preventDefault: () => void }) => {
 <template>
   <div class="auth-container">
     <div class="circle-container">
-      <img src="@/assets/images/image.jpg" alt="" />
+      <img src="@/assets/images/brand.png" alt="" />
       <div class="circle"></div>
     </div>
     <div class="auth-form">
@@ -243,7 +243,7 @@ $color-border: #ccc;
     -webkit-backdrop-filter: blur(3px);
     background-color: rgba(17, 25, 40, 0);
     border-top: 1px solid $bgOp-6;
-    animation: waveAnimation 4s linear infinite;
+    animation: waveAnimation 5s linear infinite;
   }
 
   img {
@@ -259,7 +259,7 @@ $color-border: #ccc;
   }
 
   50% {
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
 
   100% {

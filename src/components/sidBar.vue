@@ -165,7 +165,7 @@ const navigate = (link: string) => router.push(link);
       </div>
       <div class="brand">
         <p v-show="useMain.sideBar">FMS</p>
-        <img src="@/assets/images/image.jpg" alt="" srcset="" />
+        <img src="@/assets/images/brand.png" alt="" srcset="" />
       </div>
     </div>
     <div class="side-items">

@@ -72,7 +72,7 @@ onMounted(async () => {
           </div>
         </div>
 
-        <router-view v-else></router-view>
+        <router-view></router-view>
       </div>
     </div>
   </div>
