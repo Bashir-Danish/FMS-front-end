@@ -12,6 +12,7 @@ const semester = () => import('@/views/pages/semester.vue')
 const student = () => import('@/views/pages/student.vue')
 const subject = () => import('@/views/pages/subject.vue')
 const users = () => import('@/views/pages/users.vue')
+const about = () => import('@/views/pages/about.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,7 +20,7 @@ const router = createRouter({
     {
       path: '/',
       name:"home",
-      component: HomeView,
+      component: about,
       meta: { isAuthenticated: true,  title: 'FMS | خانه' },
       children: [
         {
