@@ -8,6 +8,7 @@ import {
 } from "@/types/model";
 import axios from "@/plugins/axios";
 import { useRouter } from "vue-router";
+import {  destroyToken } from "@/utils/jwt";
 
 export const mainStore = defineStore("main", () => {
   // const confirmDialog = reactive({
@@ -91,7 +92,7 @@ export const mainStore = defineStore("main", () => {
       departments.value = res.data;
     } catch (error:any) {
       if (error.response.status == 401) {
-        deleteAccessTokenCookie();
+        destroyToken();
         router.push("/login");
       }
       // console.error("Error retrieving departments:", error);
@@ -158,7 +159,7 @@ export const mainStore = defineStore("main", () => {
       semesters.value = res.data;
     } catch (error:any) {
       if (error.response.status == 401) {
-        deleteAccessTokenCookie();
+        destroyToken();
         router.push("/login");
       }
       // console.error("Error retrieving semesters:", error);
@@ -325,7 +326,7 @@ export const mainStore = defineStore("main", () => {
       }
     } catch (error:any) {
       if (error.response.status == 401) {
-        deleteAccessTokenCookie();
+        destroyToken();
         router.push("/login");
       }
       console.error("Error retrieving subjects:", error);
@@ -459,7 +460,7 @@ export const mainStore = defineStore("main", () => {
       students.value = response.data.students;
     } catch (error:any) {
       if (error.response.status == 401) {
-        deleteAccessTokenCookie();
+        destroyToken();
         router.push("/login");
       }
       console.error("Error retrieving students:", error);
