@@ -1,13 +1,5 @@
 import axios from "axios";
-
 import { getToken } from "@/utils/jwt";
-
-const token = getToken();
-if (token) {
-  axios.defaults.headers.common["Authorization"] = getToken();
-} else {
-  axios.defaults.headers.common["Authorization"] = "";
-}
 
 const _axios = axios.create({
   baseURL: "http://api.kdanish.com/api/v1",
@@ -17,6 +9,14 @@ const _axios = axios.create({
 
 _axios.interceptors.request.use(
   function (config) {
+    const token = getToken();
+
+    if (token) {
+      config.headers["Authorization"] = token;
+    } else {
+      delete config.headers["Authorization"];
+    }
+
     config.withCredentials = true;
     return config;
   },
