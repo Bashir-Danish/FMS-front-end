@@ -1,20 +1,29 @@
-function isAuthenticated() {
-  let isAuth = false;
-  const cookies = document.cookie.split(";");
 
-  for (const cookie of cookies) {
-    const [name, value] = cookie.trim().split("=");
-    if (name === "access_token") {
-      isAuth = true;
-      break;
-    }
+
+export const isAuth = () => {
+  const token = window.localStorage.getItem("tokenId");
+
+  if (token && token !== "undefined") {
+    return true; 
+  } else {
+    return false; 
   }
+};
 
-  return isAuth;
-}
+export const getToken = () => {
+  let token = window.localStorage.getItem("tokenId");
+  if (token == "undefined") {
+    token = "";
+  }
+  return token;
+};
 
-function deleteAccessTokenCookie() {
-  document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-}
+export const saveToken = (token: string) => {
+  window.localStorage.setItem('tokenId', token);
 
-export { isAuthenticated, deleteAccessTokenCookie };
+};
+export const destroyToken = () => {
+  window.localStorage.removeItem('tokenId');
+};
+
+export default { getToken, saveToken, destroyToken };

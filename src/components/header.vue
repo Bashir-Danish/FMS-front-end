@@ -10,7 +10,7 @@ import {
   SignOut20Regular
 } from "@vicons/fluent";
 const showDropdown = ref(false);
-import { deleteAccessTokenCookie } from '@/utils/jwt';
+import { destroyToken } from '@/utils/jwt';
 import { useRouter } from "vue-router";
 import { mainStore } from '@/stores/main';
 import { useAuthStore } from '@/stores/auth';
@@ -20,7 +20,7 @@ const useMain = mainStore();
 const router = useRouter();
 
 const logout = () => {
-  deleteAccessTokenCookie();
+  destroyToken();
 
   router.push('/login');
 };

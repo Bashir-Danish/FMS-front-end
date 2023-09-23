@@ -7,7 +7,6 @@ import {
   type Semester,
 } from "@/types/model";
 import axios from "@/plugins/axios";
-import { deleteAccessTokenCookie } from "@/utils/jwt";
 import { useRouter } from "vue-router";
 
 export const mainStore = defineStore("main", () => {

@@ -13,7 +13,7 @@ const routerViewStyle = ref({
   transition: "width 0.3s",
 });
 
-const isLoading = ref(true); // Flag to control loader visibility
+const isLoading = ref(true); 
 
 watch(
   () => {
@@ -28,7 +28,7 @@ watch(
 );
 
 onMounted(async () => {
-  isLoading.value = true; // Hide the loader when all operations are complete
+  isLoading.value = true; 
 
   try {
     await Promise.all([
@@ -36,7 +36,6 @@ onMounted(async () => {
       useMain.getAllSemesters(),
       useMain.getAllStudents(),
       useMain.getAllSubjects(),
-      useAuth.getUserDataFromCookie(),
       useAuth.getUserInfo(),
     ]);
 

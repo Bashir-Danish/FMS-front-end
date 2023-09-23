@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import {isAuthenticated} from '@/utils/jwt'
+import {isAuth} from '@/utils/jwt'
 
 const HomeView = () => import('@/views/HomeView.vue')
 const AuthView = () => import('@/views/AuthView.vue')
@@ -18,6 +18,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      name:"home",
       component: HomeView,
       meta: { isAuthenticated: true,  title: 'FMS | خانه' },
       children: [
@@ -66,7 +67,7 @@ const router = createRouter({
         {
           path: 'login',
           component: Login,
-          meta: {  title: 'FMS | Login' },
+          meta: {  isAuthenticated: true, title: 'FMS | Login' },
         }
       ]
     },
@@ -83,17 +84,17 @@ router.beforeEach((to, from, next) => {
   document.title = String(to.meta.title) || 'FMS';
   next();
 });
-
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.isAuthenticated)) {
-    if (isAuthenticated()) {
-      next()
+    
+    if (isAuth()) {
+      next();
     } else {
-      next('/login')
+      next('/login');
     }
   } else {
-    next()
+    next(); 
   }
-})
+});
 
 export default router

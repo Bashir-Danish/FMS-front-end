@@ -2,10 +2,10 @@ import { defineStore } from "pinia";
 import axios from "@/plugins/axios";
 import { AxiosError } from "axios";
 import { type User } from "@/types/model";
-import { deleteAccessTokenCookie } from "@/utils/jwt";
 import { ref } from "vue";
 import { mainStore } from "@/stores/main";
 import { useRouter } from "vue-router";
+import { getToken, saveToken, destroyToken } from "@/utils/jwt";
 
 interface AuthState {
   isLoggedIn: { type: boolean; default: false };
@@ -20,8 +20,20 @@ export const useAuthStore = defineStore("auth", () => {
 
   const useMain = mainStore();
   const router = useRouter();
-  const userId = ref();
+
   const userData = ref();
+
+  async function getAllUsers() {
+    try {
+      const response = await axios.get("/users");
+      users.value = response.data.users;
+    } catch (error: any) {
+      if (error.response.status == 401) {
+        router.push("/login");
+      }
+      console.error("Error retrieving users:", error);
+    }
+  }
 
   function base64UrlDecode(base64Url: string) {
     while (base64Url.length % 4 !== 0) {
@@ -38,52 +50,43 @@ export const useAuthStore = defineStore("auth", () => {
       return null;
     }
   }
-
-  async function getUserDataFromCookie() {
-    const cookies = document.cookie.split(";");
-    let user = {};
-
-    for (const cookie of cookies) {
-      const [name, value] = cookie.trim().split("=");
-      if (name === "access_token") {
-        try {
-          const parts = value.split(".");
-          if (parts.length === 3) {
-            const payload = base64UrlDecode(parts[1]);
-
-            user = payload || {};
-            userId.value = (user as any).userId;
-          } else {
-            console.error("Invalid JWT token format");
-          }
-        } catch (error) {
-          console.error("Error parsing access token from cookie:", error);
-        }
-        break;
-      }
-    }
-  }
-
-  async function getAllUsers() {
-    try {
-      const response = await axios.get("/users");
-      users.value = response.data.users;
-    } catch (error: any) {
-      if (error.response.status == 401) {
-        deleteAccessTokenCookie();
-        router.push("/login");
-      }
-      console.error("Error retrieving users:", error);
-    }
-  }
   async function getUserInfo() {
+    const token = getToken();
+
+    let userIdValue = null;
+
+    if (token) {
+      const value = token.trim().split("=");
+        const parts = value[0].split(".");
+        if (parts.length === 3) {
+          try {
+            const payload = base64UrlDecode(parts[1]);
+            const user = payload || {};
+            userIdValue = user.userId; 
+          } catch (error) {
+            // console.error("Error decoding JWT payload:", error);
+          }
+        } else {
+          // console.error("Invalid JWT token format");
+        }
+      } else {
+        // console.error("Invalid token format");
+      }
+    
+
     try {
-      const response = await axios.get(`/users/${userId.value}`);
-      userData.value = response.data.user;
+      if (userIdValue) {
+        const response = await axios.get(`/users/${userIdValue}`);
+        userData.value = response.data.user;
+        console.log(userData);
+      } else {
+        console.error("User ID is not defined.");
+      }
     } catch (error) {
       console.error("Error retrieving users:", error);
     }
   }
+
   async function createUser(data: any) {
     const formData = new FormData();
     formData.append("name", data.name);
@@ -181,7 +184,8 @@ export const useAuthStore = defineStore("auth", () => {
         remember,
       });
       if (res?.status === 200) {
-        router.push({ path: "/" });
+        saveToken(res.data.token);
+        router.push({ path: "/", name: "home" });
       }
     } catch (error: any) {
       console.error(error.response.data.error);
@@ -210,11 +214,9 @@ export const useAuthStore = defineStore("auth", () => {
     getAllUsers,
     createUser,
     updateUser,
-    getUserDataFromCookie,
     deleteUser,
     getUserInfo,
     isLoggedIn,
-    userId,
     userData,
     users,
     sideBar,
