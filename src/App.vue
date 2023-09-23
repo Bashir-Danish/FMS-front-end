@@ -75,7 +75,7 @@ const useMain = mainStore();
 
   @keyframes moveAfter {
     0% {
-      transform: translate(0, 0);
+      transform: translate(-155px, -170px);
     }
     100% {
       transform: translate(150px, -155px);
