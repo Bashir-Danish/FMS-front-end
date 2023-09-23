@@ -65,13 +65,16 @@ const router = createRouter({
       children: [
         {
           path: 'login',
-          component: Login
+          component: Login,
+          meta: {  title: 'FMS | Login' },
         }
       ]
     },
     {
       path: "/:NotFound(.*)*",
       component: notFound,
+      meta: {  title: 'FMS | Not Found' },
+
     },
   ]
 })
