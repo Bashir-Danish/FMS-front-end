@@ -4,7 +4,7 @@ import { getToken } from "@/utils/jwt";
 const _axios = axios.create({
   baseURL: "http://api.kdanish.com/api/v1",
   // baseURL: "http://localhost:5000/api/v1",
-  withCredentials: true,
+  // withCredentials: true,
 });
 
 _axios.interceptors.request.use(
@@ -17,7 +17,7 @@ _axios.interceptors.request.use(
       config.headers["Authorization"] = ''
     }
 
-    config.withCredentials = true;
+    // config.withCredentials = true;
     return config;
   },
   function (error) {
