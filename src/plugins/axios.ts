@@ -17,7 +17,6 @@ _axios.interceptors.request.use(
       config.headers["Authorization"] = ''
     }
 
-    // config.withCredentials = true;
     return config;
   },
   function (error) {
