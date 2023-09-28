@@ -8,7 +8,7 @@ const useMain = mainStore();
 
 
 <template>
-  <div class="app">
+  <div class="main">
     <Transition  name="bounce">
         <Notification v-if="useMain.errorMessage.message" />
     </Transition>
@@ -26,8 +26,7 @@ const useMain = mainStore();
   box-sizing: border-box;
 }
 
-.app {
-  position: relative;
+.main {
   width: 100vw;
   height: 100vh;
   min-height: 100vh;
@@ -36,7 +35,6 @@ const useMain = mainStore();
   position: relative;
   font-family: 'Lexend';
   color: $dOp-7;
-
   &::before,
   &::after {
     content: "";

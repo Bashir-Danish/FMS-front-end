@@ -20,8 +20,8 @@ export const mainStore = defineStore("main", () => {
   //   },
   // });
 
-  const baseUrl = ref('http://api.kdanish.com');
-  // const baseUrl = ref('http://localhost:5000');
+  // const baseUrl = ref('http://api.kdanish.com');
+  const baseUrl = ref('http://localhost:5000');
   const semesterSTR = ref();
   const departmentSTR = ref();
 
@@ -183,6 +183,7 @@ export const mainStore = defineStore("main", () => {
           name: data.name,
           year: data.year,
           semester_number: data.semester_number,
+          is_passed:0
         });
         setMessage("سمستر", res.data.message, true);
       }
@@ -219,6 +220,7 @@ export const mainStore = defineStore("main", () => {
           };
         }
         setMessage("سمستر", res.data.message, true);
+        getAllSemesters()
       }
     } catch (error: any) {
       setMessage("سمستر", error.response.data.error, false);

@@ -5,7 +5,10 @@ import { mainStore } from '@/stores/main';
 import BaseInput from "@/components/smallcomponents/baseinput.vue";
 import { Icon } from "@vicons/utils";
 import {
-  Delete24Regular
+  PeopleTeam28Regular,
+  PeopleSync16Regular,
+  Apps28Regular,
+  Person24Regular
 } from "@vicons/fluent";
 
 import {
@@ -26,50 +29,86 @@ const useMain = mainStore();
   <div class="home-content">
     <div class="section-1">
       <div class="card">
-        <h3>محصلین</h3>
-        <ul>
-          <li>
-            <span>تعداد محصلین</span>
-            <span>4042</span>
-          </li>
-          <li>
-            <span> محصلین برحال</span>
-            <span>270</span>
-          </li>
-        </ul>
+        <div class="card-items">
+          <div class="card-item">
+            <span class="icon">
+              <Icon size="40">
+                <PeopleTeam28Regular />
+              </Icon>
+            </span>
+            <span class="details">
+              <span>کل محصلین </span>
+              <span>3270</span>
+            </span>
+          </div>
+          <div class="card-item">
+            <span class="icon">
+              <Icon size="40">
+                <PeopleSync16Regular />
+              </Icon>
+            </span>
+            <span class="details">
+              <span> محصلین برحال</span>
+              <span>170</span>
+            </span>
+          </div>
+        </div>
       </div>
       <div class="card">
-        <h3>سمستر ها</h3>
-        <ul>
-          <li>
-            <span>کل سمستر</span>
-            <span>4042</span>
-          </li>
-          <li>
-            <span> سمستر در جریان</span>
-            <span>270</span>
-          </li>
-        </ul>
+        <div class="card-items">
+          <div class="card-item">
+            <span class="icon">
+              <Icon size="40">
+                <PeopleTeam28Regular />
+              </Icon>
+            </span>
+            <span class="details">
+              <span> محصلین برحال</span>
+              <span>270</span>
+            </span>
+          </div>
+          <div class="card-item">
+            <span class="icon">
+              <Icon size="40">
+                <PeopleTeam28Regular />
+              </Icon>
+            </span>
+            <span class="details">
+              <span> محصلین برحال</span>
+              <span>270</span>
+            </span>
+          </div>
+        </div>
       </div>
       <div class="card">
-        <h3>دیپارتمنت ها</h3>
-        <ul>
-          <li>
-            <span>تعداد کاربران</span>
-            <span>3</span>
-          </li>
-        </ul>
-        <h3>کاربران</h3>
-        <ul>
-          <li>
-            <span>تعداد کاربران</span>
-            <span>7</span>
-          </li>
-        </ul>
+        <div class="card-items">
+          <div class="card-item">
+            <span class="icon">
+              <Icon size="40">
+                <Apps28Regular />
+              </Icon>
+            </span>
+            <span class="details">
+              <span>دیپارتمنت ها</span>
+              <span>3</span>
+            </span>
+          </div>
+          <div class="card-item">
+            <span class="icon">
+              <Icon size="40">
+                <Person24Regular />
+              </Icon>
+            </span>
+            <span class="details">
+              <span>تعداد کاربران</span>
+              <span>11</span>
+            </span>
+          </div>
+        </div>
       </div>
     </div>
     <div class="section-2">
-    
+
     </div>
   </div>
 </template>
@@ -102,14 +141,17 @@ const useMain = mainStore();
   }
 
   .section-1 {
-    height: 40%;
+    height: 45%;
     display: flex;
     gap: 1rem;
-    margin-bottom: 1rem ;
+    margin-bottom: 1rem;
 
     .card {
-      flex:1;
+      flex: 1;
       height: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
       background: rgba(255, 255, 255, 0.3);
       box-shadow: 0 2px 3px 0 rgba(82, 88, 170, 0.37),
         0 -1px 1px 0 rgba(116, 119, 156, 0.085);
@@ -117,12 +159,76 @@ const useMain = mainStore();
       -webkit-backdrop-filter: blur(0px);
       border-radius: 10px;
       border: 2px solid rgba(255, 255, 255, 0.98);
-      padding: 1rem;
+      // padding: 1rem;
+      overflow: hidden;
+
+      h3 {
+        height: 10%;
+        text-align: right;
+        padding: .2rem 1rem;
+      }
+
+      .card-items {
+        height: 90%;
+        flex: 1;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        overflow: auto;
+
+
+        .card-item {
+          display: flex;
+          flex: 1;
+          background-color: white;
+          box-shadow: 0 2px 3px 0 rgba(112, 117, 190, 0.37),
+            0 1px 1px 0 rgba(116, 119, 156, 0.085);
+          border: 2px solid rgba(255, 255, 255, 0.98);
+          border-radius: 7px;
+      overflow: hidden;
+
+
+          .icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30%;
+            height: 100%;
+            color: $primary;
+          }
+
+          .details {
+            display: flex;
+            flex-direction: column;
+            align-items: start;
+            justify-content: center;
+            // padding: 0 1rem;
+
+            span:first-child {
+              font-size: 12px;
+
+            }
+
+            span:last-child {
+              background: linear-gradient(to right, #007bff, #6610f2);
+              -webkit-background-clip: text;
+              background-clip: text;
+              font-size: 30px;
+              font-weight: bolder;
+              color: transparent;
+            }
+          }
+        }
+      }
     }
   }
 
   .section-2 {
-    height: 60%;
+    height: 55%;
     background: rgba(255, 255, 255, 0.3);
     box-shadow: 0 2px 3px 0 rgba(31, 38, 135, 0.37),
       0 -1px 3px 0 rgba(116, 119, 156, 0.085);

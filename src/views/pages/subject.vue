@@ -160,129 +160,130 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <div>
-    <div v-if="showCreateForm || showUpdateForm" class="dark-container" @click="closeForm"></div>
-    <TransitionGroup name="bounce">
-      <div v-if="showCreateForm || showUpdateForm" class="semester-form-overlay">
-        <div class="semester-form">
-          <h2 v-if="showCreateForm">افزدون مضامین</h2>
-          <h2 v-if="showUpdateForm"> ویرایش مضامین</h2>
-          <form v-if="showCreateForm">
-            <div class="input-groups">
-              <div class="input-group">
-                <label for="dep">دیپارتمنت:</label>
-                <div class="select-o">
-                  <input id="dep" type="text" v-model="useMain.departmentSTR" @focus="departmentDrop = true"
-                    @blur="departmentDrop = false" placeholder="دیپارتمنت مربوطه را انتخاب کنید" required
-                    autocomplete="false">
-                  <TransitionGroup name="list" appear>
-                    <ul class="select-ul" v-if="departmentDrop">
 
-                      <li v-for="department in useMain.departmentData" :key="department.department_id"
-                        @click.self="selectDepartement(department)">
-                        <span @click.self="selectDepartement(department)">{{ department.name }}</span>
-                      </li>
-                    </ul>
-                  </TransitionGroup>
+    <div v-if="showCreateForm || showUpdateForm" class="dark-container" @click="closeForm">
+      <TransitionGroup name="bounce">
+        <div v-if="showCreateForm || showUpdateForm" class="semester-form-overlay">
+          <div class="semester-form">
+            <h2 v-if="showCreateForm">افزدون مضامین</h2>
+            <h2 v-if="showUpdateForm"> ویرایش مضامین</h2>
+            <form v-if="showCreateForm">
+              <div class="input-groups">
+                <div class="input-group">
+                  <label for="dep">دیپارتمنت:</label>
+                  <div class="select-o">
+                    <input id="dep" type="text" v-model="useMain.departmentSTR" @focus="departmentDrop = true"
+                      @blur="departmentDrop = false" placeholder="دیپارتمنت مربوطه را انتخاب کنید" required
+                      autocomplete="false">
+                    <TransitionGroup name="list" appear>
+                      <ul class="select-ul" v-if="departmentDrop">
+  
+                        <li v-for="department in useMain.departmentData" :key="department.department_id"
+                          @click.self="selectDepartement(department)">
+                          <span @click.self="selectDepartement(department)">{{ department.name }}</span>
+                        </li>
+                      </ul>
+                    </TransitionGroup>
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="semester">سمستر:</label>
+                  <div class="select-o">
+                    <input id="semester" type="text" v-model="useMain.semesterSTR" @focus="semesterDrop = true"
+                      @blur="semesterDrop = false" placeholder="سمستر مربوطه را انتخاب کنید" required autocomplete="false">
+                    <TransitionGroup name="list" appear>
+  
+                      <ul class="select-ul" v-if="semesterDrop">
+                        <li v-for="(semester, index) in useMain.semesterData" :key="index"
+                          @click="selectSemester(semester)">
+                          {{ translateSemesterNumber(semester.semester_number) }} {{
+                            semester.name }} {{ semester.year }}
+                        </li>
+                      </ul>
+                    </TransitionGroup>
+                  </div>
                 </div>
               </div>
+  
               <div class="input-group">
-                <label for="semester">سمستر:</label>
-                <div class="select-o">
-                  <input id="semester" type="text" v-model="useMain.semesterSTR" @focus="semesterDrop = true"
-                    @blur="semesterDrop = false" placeholder="سمستر مربوطه را انتخاب کنید" required autocomplete="false">
-                  <TransitionGroup name="list" appear>
-
-                    <ul class="select-ul" v-if="semesterDrop">
-                      <li v-for="(semester, index) in useMain.semesterData" :key="index"
-                        @click="selectSemester(semester)">
-                        {{ translateSemesterNumber(semester.semester_number) }} {{
-                          semester.name }} {{ semester.year }}
-                      </li>
-                    </ul>
-                  </TransitionGroup>
+                <label for="subject">مضامین:</label>
+                <div>
+                  <subjectItems />
                 </div>
               </div>
-            </div>
-
-            <div class="input-group">
-              <label for="subject">مضامین:</label>
-              <div>
-                <subjectItems />
-              </div>
-            </div>
-
-            <div class="button-group">
-              <button type="button" @click="handleSubmit()">ذخیره</button>
-              <button @click="closeForm" type="button">لغو</button>
-            </div>
-          </form>
-          <div v-else class="update-container">
-            <ul class="semester-details-list">
-              <li>
-                <p>سمستر</p>
-                <p>{{ translateSemesterNumber(selectedRecord.semester_number) }}</p>
-              </li>
-              <li>
-                <p>نوع</p>
-                <p>{{ selectedRecord.semester_name }}</p>
-              </li>
-              <li>
-                <p>سال</p>
-                <p>{{ selectedRecord.year }} -ه ش</p>
-              </li>
-              <li>
-                <p>دیپارتمنت</p>
-                <p>{{ useMain.departments.find(dep => dep.department_id ===
-                  selectedRecord.department_id)?.name }}</p>
-              </li>
-            </ul>
-            <span id="add-btn">
-              <button @click="handleCreateSubject()">
-                <Icon>
-                  <Add />
-                </Icon>
-              </button>
-            </span>
-            <form class="subject-from" v-if="showSubjectCreateForm || showSubjectUpdateForm">
-              <!-- <h3 v-if="showSubjectCreateForm">افزدون مضمون</h3>
-              <h3 v-if="showSubjectUpdateForm">ویرایش مضمون</h3> -->
-              <BaseInput v-model="sbjFormData.name" input-type="text" input-id="نام:" :is-required="true"
-                placeholder="نام را وارد کنید" />
-              <BaseInput v-model="sbjFormData.credit" input-type="number" input-id="کردیت:" :is-required="true"
-                placeholder="کردیت را وارد کنید" />
-
-              <div class="buttons">
-                <button type="button"
-                  @click="createSingleSubject(selectedRecord.department_id, selectedRecord.semester_id)">{{
-                    showSubjectCreateForm ? 'ذخیره' : 'ویرایش' }}</button>
-                <button @click="showSubjectCreateForm = false, showSubjectUpdateForm = false" type="button">لغو</button>
+  
+              <div class="button-group">
+                <button type="button" @click="handleSubmit()">ذخیره</button>
+                <button @click="closeForm" type="button">لغو</button>
               </div>
             </form>
-            <ul class="edit-subject-ul" v-else>
-              <transition-group name="specList">
-                <li v-for="item in selectedRecord.subjects" :key="item">
-                  <span>{{ item.subject_name }}</span>
-                  <span>{{ item.credit }}</span>
-                  <span class="edit"
-                    @click="handleSubjectUpdate(item, selectedRecord.department_id, selectedRecord.semester_id)">
-                    <Icon color="green">
-                      <PencilOutline />
-                    </Icon>
-                  </span>
-                  <span class="trash"
-                    @click="deleteSingleSubject(item.subject_id, selectedRecord.semester_id, selectedRecord.department_id)">
-                    <Icon color="red">
-                      <Delete24Regular />
-                    </Icon>
-                  </span>
+            <div v-else class="update-container">
+              <ul class="semester-details-list">
+                <li>
+                  <p>سمستر</p>
+                  <p>{{ translateSemesterNumber(selectedRecord.semester_number) }}</p>
                 </li>
-              </transition-group>
-            </ul>
+                <li>
+                  <p>نوع</p>
+                  <p>{{ selectedRecord.semester_name }}</p>
+                </li>
+                <li>
+                  <p>سال</p>
+                  <p>{{ selectedRecord.year }} -ه ش</p>
+                </li>
+                <li>
+                  <p>دیپارتمنت</p>
+                  <p>{{ useMain.departments.find(dep => dep.department_id ===
+                    selectedRecord.department_id)?.name }}</p>
+                </li>
+              </ul>
+              <span id="add-btn">
+                <button @click="handleCreateSubject()">
+                  <Icon>
+                    <Add />
+                  </Icon>
+                </button>
+              </span>
+              <form class="subject-from" v-if="showSubjectCreateForm || showSubjectUpdateForm">
+                <!-- <h3 v-if="showSubjectCreateForm">افزدون مضمون</h3>
+                <h3 v-if="showSubjectUpdateForm">ویرایش مضمون</h3> -->
+                <BaseInput v-model="sbjFormData.name" input-type="text" input-id="نام:" :is-required="true"
+                  placeholder="نام را وارد کنید" />
+                <BaseInput v-model="sbjFormData.credit" input-type="number" input-id="کردیت:" :is-required="true"
+                  placeholder="کردیت را وارد کنید" />
+  
+                <div class="buttons">
+                  <button type="button"
+                    @click="createSingleSubject(selectedRecord.department_id, selectedRecord.semester_id)">{{
+                      showSubjectCreateForm ? 'ذخیره' : 'ویرایش' }}</button>
+                  <button @click="showSubjectCreateForm = false, showSubjectUpdateForm = false" type="button">لغو</button>
+                </div>
+              </form>
+              <ul class="edit-subject-ul" v-else>
+                <transition-group name="specList">
+                  <li v-for="item in selectedRecord.subjects" :key="item">
+                    <span>{{ item.subject_name }}</span>
+                    <span>{{ item.credit }}</span>
+                    <span class="edit"
+                      @click="handleSubjectUpdate(item, selectedRecord.department_id, selectedRecord.semester_id)">
+                      <Icon color="green">
+                        <PencilOutline />
+                      </Icon>
+                    </span>
+                    <span class="trash"
+                      @click="deleteSingleSubject(item.subject_id, selectedRecord.semester_id, selectedRecord.department_id)">
+                      <Icon color="red">
+                        <Delete24Regular />
+                      </Icon>
+                    </span>
+                  </li>
+                </transition-group>
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
-    </TransitionGroup>
+      </TransitionGroup>
+    </div>
     <div class="semesters-list">
       <div class="header">
         <span id="num">
@@ -339,7 +340,7 @@ onMounted(async () => {
         </li>
       </ul>
     </div>
-  </div>
+  
 </template>
   
 <style scoped lang="scss">
@@ -525,9 +526,9 @@ ul {
 .semester-form-overlay {
   position: absolute;
   height: 30rem;
-  max-height: 30rem;
+  // max-height: 30rem;
   width: 35rem;
-  min-width: 35rem;
+  // min-width: 35rem;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);

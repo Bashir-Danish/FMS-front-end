@@ -17,6 +17,7 @@ export interface Semester {
   name: string;
   year: number;
   semester_number: number;
+  is_passed:number
 }
 
 export interface Student {

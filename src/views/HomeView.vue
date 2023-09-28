@@ -72,22 +72,24 @@ onMounted(async () => {
           </div>
         </div>
 
-        <router-view></router-view>
+        <router-view/>
       </div>
     </div>
   </div>
 </template>
-<style scoped lang="scss">
+<style  lang="scss">
 @import "@/assets/mixin.scss";
 @import "@/assets/variables.scss";
 
 .home-content {
-  position: relative;
   display: flex;
+  height: 100%;
   // margin-right: 1rem;
 }
 
 .main-content {
+  height: 100%;
+
   // width: calc(100% );
   transition: width 0.3s;
   // height: calc(100vh );
@@ -95,14 +97,15 @@ onMounted(async () => {
   // overflow-y: auto;
   // @include hideScrollbar();
 
-  &:hover {
-    @include scrollbar();
-  }
+  // &:hover {
+  //   @include scrollbar();
+  // }
 }
 
 .router-view-container {
   // overflow-y: auto;
   // height: calc(100vh - 6em);
+  height: 100%;
   margin-right: .5rem;
   padding: 0 0.7rem;
   // background: rgba(255, 255, 255, 0.3);
@@ -114,9 +117,23 @@ onMounted(async () => {
   // border: 2px solid rgba(255, 255, 255, 0.98);
   direction: rtl;
   border-radius: 1rem;
-
 }
+.dark-container {
+  background-color: #0000003f;
+  width: 100%;
+  height: 100%;
+  // height: 110vh;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 500;
+  overflow: auto;
+  @include hideScrollbar();
 
+  &:hover {
+    @include scrollbar();
+  }
+}
 .loader {
   position: absolute;
   top: 0;

@@ -21,7 +21,13 @@ export const useAuthStore = defineStore("auth", () => {
   const useMain = mainStore();
   const router = useRouter();
 
-  const userData = ref();
+  const userData = ref({
+    user_id:0,
+    name:'',
+    lastName:'',
+    email:'',
+    picture:'',
+  });
 
   async function getAllUsers() {
     try {
@@ -77,8 +83,12 @@ export const useAuthStore = defineStore("auth", () => {
     try {
       if (userIdValue) {
         const response = await axios.get(`/users/${userIdValue}`);
-        userData.value = response.data.user;
-        console.log(userData);
+        userData.value.user_id = response.data.user.user_id;
+        userData.value.name = response.data.user.name;
+        userData.value.lastName = response.data.user.lastName;
+        userData.value.email = response.data.user.email;
+        userData.value.picture = response.data.user.picture;
+
       } else {
         console.error("User ID is not defined.");
       }

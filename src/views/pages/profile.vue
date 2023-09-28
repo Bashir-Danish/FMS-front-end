@@ -2,27 +2,70 @@
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { mainStore } from '@/stores/main';
-
+import { Icon } from "@vicons/utils";
+import {
+  PersonEdit20Regular
+} from "@vicons/fluent";
 const useAuth = useAuthStore();
 const useMain = mainStore();
 
+const isUpdate = ref(false)
+const userData = ref({
+  name: '',
+  lastName: '',
+  email: '',
+});
 
+// onMounted(async () => {
+//   userData.value.name = useAuth.userData?.name;
+//   userData.value.lastName = useAuth.userData?.lastName;
+//   userData.value.email = useAuth.userData?.email;
+// });
 </script>
 
 <template>
   <div class="profile-content">
-    <div class="auth-container">
-      <div class="blur-container">
-        <div class="avatar">
-          <img class="image" v-if="useAuth.userData && useAuth.userData.picture"
-            :src="useMain.baseUrl + useAuth.userData.picture" alt="" srcset="" />
-          <img v-else src="@/assets/images/person.png" alt="" />
+    <!-- <div class="auth-container"> -->
+    <div class="blur-container">
+      <div class="avatar">
+        <img class="image" v-if="useAuth.userData && useAuth.userData.picture"
+          :src="useMain.baseUrl + useAuth.userData.picture" alt="" srcset="" />
+        <img v-else src="@/assets/images/person.png" alt="" />
+      </div>
+
+      <div class="blur">
+        <div class="auth-form">
+          <form>
+            <div class="form-group">
+              <label for="name">نام</label>
+              <input v-if="isUpdate" type="text" id="name" v-model="useAuth.userData.name">
+              <p v-else>{{ useAuth.userData.name }}</p>
+            </div>
+            <div class="form-group">
+              <label for="lastName">تخلص</label>
+              <input v-if="isUpdate" type="text" id="lastName" v-model="useAuth.userData.lastName">
+              <p v-else>{{ useAuth.userData.lastName }}</p>
+            </div>
+            <div class="form-group">
+              <label for="email"> ایمیل آدرس</label>
+              <input v-if="isUpdate" type="email" id="email" v-model="useAuth.userData.email">
+              <p v-else id="email">{{ useAuth.userData.email }}</p>
+            </div>
+            <div class="btn">
+              <input v-if="isUpdate" type="button" value="Save Changes">
+              <span v-else @click="isUpdate = true">
+                <Icon size="30">
+                  <PersonEdit20Regular />
+                </Icon>
+              </span>
+            </div>
+          </form>
         </div>
-        <div class="blur"></div>
       </div>
     </div>
   </div>
 </template>
+
 
 <style scoped lang="scss">
 @import "@/assets/variables.scss";
@@ -30,93 +73,7 @@ const useMain = mainStore();
 
 
 
-.auth-container {
-  display: flex;
-  width: 100%;
-  height: 100vh;
 
-  .auth-form {
-    flex: 1;
-    z-index: 100;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-
-    form {
-      padding: 1em;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      text-align: right;
-
-      h1 {
-        margin-bottom: 0.5em;
-        color: $dOp-9;
-      }
-
-      p {
-        margin-bottom: 2.5em;
-        color: $dOp-5;
-      }
-
-      .form-group {
-        margin-bottom: 1em;
-        width: 100%;
-
-        label {
-          display: block;
-          font-weight: 500;
-          color: $dOp-7;
-          margin-bottom: 5px;
-        }
-
-        input {
-          width: 100%;
-          padding: 0.9em 1em;
-          border: 1px solid lighten($color-border, 5%);
-          border-radius: 6px;
-          font-size: 1em;
-          margin-bottom: 0.7em;
-          text-align: right;
-        }
-      }
-
-      button {
-        width: 100%;
-        padding: 15px;
-        background-color: darken($primary, 10%);
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        font-size: 1em;
-        font-weight: 500;
-        transition: background-color 0.3s ease-in-out;
-
-        &:hover {
-          background-color: $primary;
-        }
-      }
-
-      .options {
-        margin-top: 1.5em;
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-
-        p {
-          font-size: 0.9em;
-          color: darken($primary, 10%);
-          text-decoration: none;
-
-          &:hover {
-            text-decoration: underline;
-            cursor: pointer;
-          }
-        }
-      }
-    }
-  }
-}
 
 .blur-container {
   flex: 1;
@@ -135,6 +92,118 @@ const useMain = mainStore();
     background-color: rgba(255, 255, 255, 0.151);
     border-top: 1px solid $bgOp-9;
     z-index: 3;
+    .auth-form {
+      width: 50%;
+      // height: 100%;
+      margin: 5rem auto;
+      form {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: right;
+        .form-group {
+          margin-bottom: 1em;
+          display: flex;
+          width: 70%;
+
+          p {
+            flex: 1;
+            width: 80%;
+            padding-right: 0.5rem;
+            border-radius: 6px;
+            font-size: 1em;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            color: $dOp-5;
+          }
+
+          label {
+            width: 25%;
+            font-weight: 500;
+            color: $dOp-7;
+            margin-bottom: 5px;
+          }
+
+
+          input {
+            width: 80%;
+            padding: 0.2rem .2rem;
+            border: 1px solid lighten($color-border, 5%);
+            border-radius: 4px;
+            font-size: 1em;
+            text-align: right;
+            outline: none;
+            border: none;
+
+            &:hover,
+            &:focus {
+              border-bottom: $primary 1px solid;
+
+            }
+          }
+
+        }
+
+        .btn {
+          width: 30%;
+          height: 1.7rem;
+          margin-top: 1rem;
+
+          input {
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+            border: none;
+            border-radius: 5px;
+            background-color: $primary;
+            color: $white;
+            width: 100%;
+            height: 100%;
+          }
+          span{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+
+        button {
+          width: 100%;
+          padding: 15px;
+          background-color: darken($primary, 10%);
+          color: #fff;
+          border: none;
+          border-radius: 10px;
+          font-size: 1em;
+          font-weight: 500;
+          transition: background-color 0.3s ease-in-out;
+
+          &:hover {
+            background-color: $primary;
+          }
+        }
+
+        .options {
+          margin-top: 1.5em;
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+
+          p {
+            font-size: 0.9em;
+            color: darken($primary, 10%);
+            text-decoration: none;
+
+            &:hover {
+              text-decoration: underline;
+              cursor: pointer;
+            }
+          }
+        }
+      }
+    }
   }
 
   .avatar {

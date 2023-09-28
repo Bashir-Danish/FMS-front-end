@@ -240,7 +240,7 @@ const navigate = (link: string) => router.push(link);
   flex-direction: column;
   align-items: end;
   z-index: 100;
-
+  overflow: hidden;
   .side-logo {
     width: 100%;
     // height: 4rem;

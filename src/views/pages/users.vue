@@ -64,12 +64,12 @@ const handleSubmit = async () => {
     } catch (error) {
       console.error('Error updating user:', error);
     }
-    formData.value.name =''
-    formData.value.lastName =''
-    formData.value.email =''
-    formData.value.password =''
-    formData.value.userType =''
-    formData.value.picture =null
+    formData.value.name = ''
+    formData.value.lastName = ''
+    formData.value.email = ''
+    formData.value.password = ''
+    formData.value.userType = ''
+    formData.value.picture = null
   }
 };
 
@@ -101,7 +101,7 @@ const closeForm = () => {
 };
 const selectImage = async (id?: number) => {
   isLoading.value = true
-  const path = await useMain.uploadImage('user',id)
+  const path = await useMain.uploadImage('user', id)
   console.log(id);
 
   if (path !== '') {
@@ -117,106 +117,105 @@ onMounted(async () => {
 
 
 <template>
-  <div>
-    <div v-if="showCreateForm || showUpdateForm" class="dark-container" @click="closeForm"></div>
-    <TransitionGroup  name="bounce">
-      <div v-if="showCreateForm || showUpdateForm" class="user-form-overlay">
-        <div class="user-form">
-          <h2 v-if="showCreateForm">ایجاد کاربر جدید</h2>
-          <h2 v-if="showUpdateForm">ویرایش کاربر</h2>
-  
-          <form @submit.prevent="" enctype="multipart/form-data">
-  
-            <div class="input-groups">
-              <div class="input-group">
-                <BaseInput v-model="formData.name" input-type="text" input-id="نام:" :is-required="true"
-                  placeholder="نام را وارد کنید" />
-              </div>
-              <div class="input-group">
-                <BaseInput v-model="formData.lastName" input-type="text" input-id="تخلص:" :is-required="true"
-                  placeholder="تخلص را وارد کنید" />
-              </div>
+  <div v-if="showCreateForm || showUpdateForm" class="dark-container" @click="closeForm">
+  </div>
+  <TransitionGroup name="bounce">
+    <div v-if="showCreateForm || showUpdateForm" class="user-form-overlay">
+      <div class="user-form">
+        <h2 v-if="showCreateForm">ایجاد کاربر جدید</h2>
+        <h2 v-if="showUpdateForm">ویرایش کاربر</h2>
+
+        <form @submit.prevent="" enctype="multipart/form-data">
+
+          <div class="input-groups">
+            <div class="input-group">
+              <BaseInput v-model="formData.name" input-type="text" input-id="نام:" :is-required="true"
+                placeholder="نام را وارد کنید" />
             </div>
             <div class="input-group">
-              <BaseInput v-model="formData.email" input-type="email" input-id="ایمیل:" :is-required="true"
-                placeholder="ایمیل را وارد کنید" />
-            </div>
-  
-            <div class="input-groups">
-              <div class="input-group">
-                <BaseInput v-model="formData.password" input-type="password" input-id="رمز عبور:" :is-required="true"
-                  placeholder="رمز عبور را وارد کنید" />
-              </div>
-              <div class="input-group">
-                <label for="number">شماره ترم:</label>
-                <select v-model="formData.userType" id="number" required>
-                  <option value="" disabled selected> نوع کاربر</option>
-                  <option value="user" >کاربر</option>
-                  <option value="teacher" >استاد</option>
-                </select>
-              </div>
-  
-            </div>
-            <div class="image-input">
-              <label for="image">پروفایل</label>
-              <div class="dropzone">
-                <dropZone v-if="showCreateForm" store="user" :loading="isLoading" @selectImage="selectImage()" />
-                <dropZone v-if="showUpdateForm" store="user" :loading="isLoading"
-                  @selectImage="selectImage(selectedUser?.user_id)" />
-              </div>
-            </div>
-  
-            <div class="button-group">
-              <button type="button" @click="handleSubmit()">{{ showCreateForm ? 'ذخیره' : 'ویرایش' }}</button>
-              <button @click="closeForm" type="button">لغو</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </TransitionGroup>
-
-    <div class="users-list">
-      <div class="header">
-        <span id="num">شماره</span>
-        <span id="user-picture">پروفایل</span>
-        <span id="user-name">نام</span>
-        <span id="user-email">ایمیل</span>
-        <span id="user-type">نوع کاربر</span>
-        <span id="add-button">
-          <button @click="showCreateForm = true">
-            <Icon>
-              <Add />
-            </Icon>
-          </button>
-        </span>
-      </div>
-      <ul>
-        <li v-for="(user , index) in useAuth.users" :key="user.user_id" class="item">
-          <div class="list-item-content">
-            <span class="number">{{ index +1 }}</span>
-            <div class="user-picture">
-              <img v-if="user.picture" :src="useMain.baseUrl + user.picture" alt="" srcset="">
-              <span v-else>No picture</span>
-            </div>
-            <p class="user-name">{{ user.name }} {{ user.lastName }}</p>
-            <p class="user-email">{{ user.email }}</p>
-            <p class="user-type">{{ user.userType }}</p>
-            <div class="edit-user-buttons">
-              <button @click="handleUpdate(user)">
-                <Icon size="20" color="green">
-                  <PencilOutline />
-                </Icon>
-              </button>
-              <button @click="handleDelete(user.user_id)">
-                <Icon size="20" color="red">
-                  <Delete24Regular />
-                </Icon>
-              </button>
+              <BaseInput v-model="formData.lastName" input-type="text" input-id="تخلص:" :is-required="true"
+                placeholder="تخلص را وارد کنید" />
             </div>
           </div>
-        </li>
-      </ul>
+          <div class="input-group">
+            <BaseInput v-model="formData.email" input-type="email" input-id="ایمیل:" :is-required="true"
+              placeholder="ایمیل را وارد کنید" />
+          </div>
+
+          <div class="input-groups">
+            <div class="input-group">
+              <BaseInput v-model="formData.password" input-type="password" input-id="رمز عبور:" :is-required="true"
+                placeholder="رمز عبور را وارد کنید" />
+            </div>
+            <div class="input-group">
+              <label for="number">شماره ترم:</label>
+              <select v-model="formData.userType" id="number" required>
+                <option value="" disabled selected> نوع کاربر</option>
+                <option value="user">کاربر</option>
+                <option value="teacher">استاد</option>
+              </select>
+            </div>
+
+          </div>
+          <div class="image-input">
+            <label for="image">پروفایل</label>
+            <div class="dropzone">
+              <dropZone v-if="showCreateForm" store="user" :loading="isLoading" @selectImage="selectImage()" />
+              <dropZone v-if="showUpdateForm" store="user" :loading="isLoading"
+                @selectImage="selectImage(selectedUser?.user_id)" />
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button type="button" @click="handleSubmit()">{{ showCreateForm ? 'ذخیره' : 'ویرایش' }}</button>
+            <button @click="closeForm" type="button">لغو</button>
+          </div>
+        </form>
+      </div>
     </div>
+  </TransitionGroup>
+
+  <div class="users-list">
+    <div class="header">
+      <span id="num">شماره</span>
+      <span id="user-picture">پروفایل</span>
+      <span id="user-name">نام</span>
+      <span id="user-email">ایمیل</span>
+      <span id="user-type">نوع کاربر</span>
+      <span id="add-button">
+        <button @click="showCreateForm = true">
+          <Icon>
+            <Add />
+          </Icon>
+        </button>
+      </span>
+    </div>
+    <ul>
+      <li v-for="(user, index) in useAuth.users" :key="user.user_id" class="item">
+        <div class="list-item-content">
+          <span class="number">{{ index + 1 }}</span>
+          <div class="user-picture">
+            <img v-if="user.picture" :src="useMain.baseUrl + user.picture" alt="" srcset="">
+            <span v-else>No picture</span>
+          </div>
+          <p class="user-name">{{ user.name }} {{ user.lastName }}</p>
+          <p class="user-email">{{ user.email }}</p>
+          <p class="user-type">{{ user.userType }}</p>
+          <div class="edit-user-buttons">
+            <button @click="handleUpdate(user)">
+              <Icon size="20" color="green">
+                <PencilOutline />
+              </Icon>
+            </button>
+            <button @click="handleDelete(user.user_id)">
+              <Icon size="20" color="red">
+                <Delete24Regular />
+              </Icon>
+            </button>
+          </div>
+        </div>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -357,11 +356,11 @@ ul {
         display: flex;
         align-items: center;
         justify-content: center;
-        
-        img{
+
+        img {
           border: 1px solid $gray-2;
-          max-width:  3.5rem;
-          min-width:  3.5rem;
+          max-width: 3.5rem;
+          min-width: 3.5rem;
           max-height: 3.5rem;
           min-height: 3.5rem;
           max-height: 3.5rem;
@@ -379,7 +378,7 @@ ul {
       .user-email {
         width: 25%;
         padding: 0 .5rem;
-    text-align: center;
+        text-align: center;
 
       }
 
@@ -412,9 +411,9 @@ ul {
 
 .user-form-overlay {
   position: absolute;
-  top: 10%;
-  right: 30%;
-  left: 30%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   padding: 1rem;
   background: rgba(255, 255, 255, 0.975);
   box-shadow: 0 10px 10px 0 rgba(31, 38, 135, 0.17),
@@ -430,12 +429,13 @@ ul {
     }
 
     form {
-      .input-groups{
+      .input-groups {
         display: flex;
         gap: 1rem;
-        padding:0 1rem;
+        padding: 0 1rem;
         width: 100%;
       }
+
       .selects-group {
         display: flex;
         width: 90%;
@@ -459,10 +459,12 @@ ul {
           text-align: right;
         }
       }
-      .image-input{
+
+      .image-input {
         width: 95%;
         margin: 0 auto;
       }
+
       .button-group {
         width: 80%;
         margin: 0 auto;
@@ -474,7 +476,7 @@ ul {
           border-radius: 5px;
           height: 2.5rem;
           font-size: 1.1rem;
-          margin-top:1rem ;
+          margin-top: 1rem;
           width: 30%;
           color: $gray-1;
           cursor: pointer;
@@ -519,15 +521,7 @@ select {
   background-color: #f0f0f0;
 }
 
-.dark-container {
-  background-color: #0000003f;
-  width: 100%;
-  height: 110vh;
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 500;
-}
+
 
 .bounce-enter-active {
   animation: bounce-in 0.5s;
@@ -537,17 +531,18 @@ select {
   animation: bounce-in 0.5s reverse;
 }
 
+
 @keyframes bounce-in {
   0% {
-    transform: scale(0);
+    transform: translate(-50%, -50%) scale(0);
   }
 
   50% {
-    transform: scale(1.1);
+    transform: translate(-50%, -50%) scale(1.1);
   }
 
   100% {
-    transform: scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 </style>

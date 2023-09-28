@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { mainStore } from '@/stores/main';
 import { type Semester } from '@/types/model';
 import { Icon } from "@vicons/utils";
@@ -14,7 +14,8 @@ const useMain = mainStore();
 const formData = ref({
   name: '',
   year: 0,
-  semester_number: 0
+  semester_number: 0,
+  is_passed: 0
 });
 const showCreateForm = ref(false);
 const showUpdateForm = ref(false);
@@ -23,6 +24,20 @@ const semSaveChange = ref(false);
 const selectedSemester = ref<Semester | null>(null);
 const semesterToChange = ref<Semester[]>([])
 const seasons = ['بهاری', 'تابستانی', 'خزانی', 'زمستانی'];
+
+const semesterData = computed(() => {
+  if (useMain.semesterSTR) {
+    const searchLowerCase = useMain.semesterSTR.toLowerCase();
+    return useMain.semesters.filter((item) => {
+      const nameMatch = item.name?.toLowerCase().includes(searchLowerCase);
+      const yearMatch = item.year.toString().includes(searchLowerCase);
+      const numberMatch = item.semester_number.toString().includes(searchLowerCase);
+
+      return (nameMatch || yearMatch || numberMatch) && item.is_passed === 0;
+    });
+  }
+  return useMain.semesters.filter((item) => item.is_passed === 0);
+});
 
 
 const handleUpdate = (semester: Semester) => {
@@ -47,6 +62,7 @@ const handleSubmit = async () => {
         name: formData.value.name,
         year: formData.value.year,
         semester_number: formData.value.semester_number,
+        is_passed: formData.value.is_passed,
       });
       closeForm();
     } catch (error) {
@@ -71,12 +87,13 @@ const closeForm = () => {
   formData.value = {
     name: '',
     year: 0,
-    semester_number: 0
+    semester_number: 0,
+    is_passed: 0
   };
   showCreateForm.value = false;
   showUpdateForm.value = false;
   semSaveChange.value = false;
-  semesterToChange.value = [] ;
+  semesterToChange.value = [];
 };
 const translateSemesterNumber = (number: number) => {
   const translations = ["اول", "دوم", "سوم", "چهارم", "پنجم", "ششم", "هفتم", "هشتم"];
@@ -96,12 +113,12 @@ const addToSavedSemester = (semester: Semester) => {
     semesterToChange.value.push(semester);
   }
 }
-const sendSemesterToUpdate =async ()=> {
+const sendSemesterToUpdate = async () => {
   let data = <any>[]
   semesterToChange.value.forEach(element => {
     data.push(element.semester_id);
   });
-  
+
   await useMain.processEnrolls(data)
   useMain.semesterSTR = ''
   closeForm()
@@ -121,14 +138,23 @@ onMounted(async () => {
           <h2 v-if="showCreateForm">ایجاد ترم جدید</h2>
           <h2 v-if="showUpdateForm">ویرایش ترم</h2>
           <form @submit.prevent="handleSubmit">
-            <div class="input-group">
-              <label for="type">نوع ترم:</label>
-              <select v-model="formData.name" id="type" required>
-                <option value="" disabled selected>انتخاب نوع ترم</option>
-                <option v-for="season in seasons" :key="season" :value="season">{{ season }}</option>
-              </select>
-            </div>
 
+            <div class="selects-group">
+              <div class="input-group">
+                <label for="type">نوع ترم:</label>
+                <select v-model="formData.name" id="type" required>
+                  <option value="" disabled selected>انتخاب نوع ترم</option>
+                  <option v-for="season in seasons" :key="season" :value="season">{{ season }}</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label for="number">شماره ترم:</label>
+                <select v-model="formData.is_passed" id="number" required>
+                  <option value="0">تمام نشده</option>
+                  <option value="1">تمام شده</option>
+                </select>
+              </div>
+            </div>
             <div class="selects-group">
               <div class="input-group">
                 <label for="year">سال:</label>
@@ -136,7 +162,6 @@ onMounted(async () => {
                   <option value="" disabled selected>انتخاب سال</option>
                   <option v-for="i in 50" :key="1370 + i" :value="1370 + 50 - i">{{ 1370 + 50 - i }}</option>
                 </select>
-
               </div>
               <div class="input-group">
                 <label for="number">شماره ترم:</label>
@@ -161,7 +186,7 @@ onMounted(async () => {
             <ul class="edit-semester-ul">
               <input type="text" class="search-semester" placeholder="جستجو...." v-model="useMain.semesterSTR">
               <transition-group name="listTransition">
-                <li v-for="(semester, index) in useMain.semesterData" :key="index" >
+                <li v-for="(semester, index) in semesterData" :key="index">
                   <span>{{ translateSemesterNumber(semester.semester_number) }}</span>
                   <span>{{ semester.name }}</span>
                   <span>{{ semester.year }}</span>
@@ -218,6 +243,9 @@ onMounted(async () => {
         <span id="semester-number">
           شماره ترم
         </span>
+        <span id="semester-passed">
+          جریان
+        </span>
         <span id="add-sem-buttons">
           <button @click="semSaveChange = true">
             <Icon>
@@ -238,6 +266,7 @@ onMounted(async () => {
             <p class="semester-name">{{ semester.name }}</p>
             <p class="semester-year">{{ semester.year }}</p>
             <p class="semester-number">{{ semester.semester_number }}</p>
+            <p class="semester-passed">{{ semester.is_passed == 0 ? 'در جریان' : 'تمام شده' }}</p>
             <div class="edit-sem-buttons">
               <button @click="handleUpdate(semester)">
                 <Icon size="20" color="green">
@@ -307,21 +336,27 @@ onMounted(async () => {
   }
 
   #year {
-    width: 25%;
+    width: 15%;
     padding: 0 1rem;
 
   }
 
 
   #semester-number {
-    width: 25%;
+    width: 15%;
+    text-align: center;
 
+  }
+
+  #semester-passed {
+    width: 15%;
+    text-align: center;
   }
 
   #add-sem-buttons {
     display: flex;
     justify-content: center;
-    width: 15%;
+    width: 20%;
 
     button {
       background-color: #fff;
@@ -388,22 +423,31 @@ ul {
       }
 
       .semester-year {
-        width: 25%;
+        width: 15%;
         padding: 0 .5rem;
 
       }
 
       .semester-number {
-        width: 25%;
+        width: 15%;
         padding: 0 .5rem;
+        text-align: center;
+
+
+      }
+
+      .semester-passed {
+        width: 15%;
+        padding: 0 .5rem;
+        text-align: center;
+
 
       }
 
 
-
       .edit-sem-buttons {
         flex: 1;
-        width: 15%;
+        width: 20%;
         display: flex;
         justify-content: end;
 
