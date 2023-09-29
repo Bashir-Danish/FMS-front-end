@@ -20,8 +20,8 @@ export const mainStore = defineStore("main", () => {
   //   },
   // });
 
-  // const baseUrl = ref('http://api.kdanish.com');
-  const baseUrl = ref('http://localhost:5000');
+  const baseUrl = ref('http://api.kdanish.com');
+  // const baseUrl = ref('http://localhost:5000');
 // String for serach
   const semesterSTR = ref();
   const departmentSTR = ref();

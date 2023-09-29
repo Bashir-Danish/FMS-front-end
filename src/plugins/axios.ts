@@ -2,8 +2,8 @@ import axios from "axios";
 import { getToken } from "@/utils/jwt";
 
 const _axios = axios.create({
-  // baseURL: "http://api.kdanish.com/api/v1",
-  baseURL: "http://localhost:5000/api/v1",
+  baseURL: "http://api.kdanish.com/api/v1",
+  // baseURL: "http://localhost:5000/api/v1",
   // withCredentials: true,
 });
 
