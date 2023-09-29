@@ -27,7 +27,8 @@ export interface Student {
   ssid: number;
   department_id: number;
   picture: string; 
-  current_semester:number
+  current_semester:number;
+  year:number;
 }
 
 

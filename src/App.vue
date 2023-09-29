@@ -1,9 +1,27 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router";
 import { mainStore } from '@/stores/main';
+import { useAuthStore} from '@/stores/auth';
 import Notification from "@/components/Notification.vue";
+import { onMounted } from "vue";
 
+const useAuth = useAuthStore();
 const useMain = mainStore();
+
+onMounted(async () => {
+
+
+  try {
+    await Promise.all([
+      useAuth.getUserInfo(),
+      useMain.getYears(),
+      useMain.getAllDepartments(),
+    ]);
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+});
 </script>
 
 

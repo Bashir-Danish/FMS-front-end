@@ -32,21 +32,22 @@ onMounted(async () => {
 
   try {
     await Promise.all([
-      useMain.getAllDepartments(),
+      useMain.getYears(),
       useMain.getAllSemesters(),
-      useMain.getAllStudents(),
       useMain.getAllSubjects(),
-      useAuth.getUserInfo(),
+      useMain.getAllSemesters(),
+
     ]);
 
-    const res = await useMain.fetchEnrolls(useMain.departments?.[0]?.department_id ?? 1, useMain.semesters?.[0]?.semester_id ?? 1);
+    await useMain.getAllStudents(useMain.departments?.[0]?.department_id , useMain.studentYears?.[0]?.year);
+    const res = await useMain.fetchEnrolls(useMain.departments?.[0]?.department_id , useMain.semesters?.[0]?.semester_id );
 
     useMain.enrollments.enrollment = res.enrollments;
     useMain.enrollments.subjects = res.subjects;
 
     setTimeout(() => {
       isLoading.value = false;
-    }, 1500);
+    }, 1000);
   } catch (error) {
     console.error('Error fetching data:', error);
     setTimeout(() => {

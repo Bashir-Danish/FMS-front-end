@@ -20,22 +20,28 @@ export const mainStore = defineStore("main", () => {
   //   },
   // });
 
-  const baseUrl = ref('http://api.kdanish.com');
-  // const baseUrl = ref('http://localhost:5000');
+  // const baseUrl = ref('http://api.kdanish.com');
+  const baseUrl = ref('http://localhost:5000');
+// String for serach
   const semesterSTR = ref();
   const departmentSTR = ref();
 
   const sideBar = ref(true);
+
+
+// main states
+
   const departments = ref<Department[]>([]);
   const semesters = ref<Semester[]>([]);
+  const students = ref<Student[]>([]);
   const enrollments = ref({
     enrollment:<any>[],
     subjects:<any>[]
   });
-  const subjectsPageRecord = ref<any[]>([]);
-  const students = ref<Student[]>([]);
   const File = ref<any[]>([]);
+  const studentYears = ref<any[]>([]);
   const subjectItems = ref<any[]>([]);
+  const subjectsPageRecord = ref<any[]>([]);
 
   const errorMessage = ref({
     title: "",
@@ -454,11 +460,27 @@ export const mainStore = defineStore("main", () => {
   ////////////////////////////////////////////////////////////////////////
   ///////////////////////////    Student     /////////////////////////////
   ////////////////////////////////////////////////////////////////////////
-
-  // Get all students
-  async function getAllStudents() {
+  async function getYears() {
     try {
-      let response = await axios.get("/students");
+      let response = await axios.get("/students/years");
+      studentYears.value = response.data.years;
+    } catch (error:any) {
+      if (error.response.status == 401) {
+        destroyToken();
+        router.push("/login");
+      }
+      console.error("Error retrieving students:", error);
+    }
+  }
+  // Get all students
+  async function getAllStudents(departmentId: number, year: number) {
+    try {
+      let response = await axios.get("/students",{
+        params: {
+          departmentId: departmentId,
+          year: year,
+        },
+      });
       students.value = response.data.students;
     } catch (error:any) {
       if (error.response.status == 401) {
@@ -477,6 +499,7 @@ export const mainStore = defineStore("main", () => {
     formData.append("ssid", data.ssid.toString());
     formData.append("department_id", data.department_id.toString());
     formData.append("current_semester", data.current_semester.toString());
+    formData.append("year", data.year.toString());
     formData.append("imagePath", data.picture.toString());
 
     try {
@@ -494,6 +517,7 @@ export const mainStore = defineStore("main", () => {
           department_id: res.data.student.department_id,
           picture: res.data.student.picture,
           current_semester: res.data.student.current_semester,
+          year: res.data.student.year,
         });
         console.log(res.data);
       }
@@ -511,6 +535,7 @@ export const mainStore = defineStore("main", () => {
     formData.append("ssid", data.ssid.toString());
     formData.append("department_id", data.department_id.toString());
     formData.append("current_semester", data.current_semester.toString());
+    formData.append("year", data.year.toString());
     formData.append("imagePath", data.picture.toString());
 
     try {
@@ -529,6 +554,7 @@ export const mainStore = defineStore("main", () => {
           students.value[Index].ssid = res.data.student.ssid;
           students.value[Index].department_id = res.data.student.department_id;
           students.value[Index].picture = res.data.student.picture;
+          students.value[Index].year = res.data.student.year;
           students.value[Index].current_semester =
             res.data.student.current_semester;
         }
@@ -579,6 +605,7 @@ export const mainStore = defineStore("main", () => {
     updateSubject,
     deleteSubjectsBySemester,
     getAllStudents,
+    getYears,
     createStudent,
     updateStudent,
     deleteStudent,
@@ -594,6 +621,7 @@ export const mainStore = defineStore("main", () => {
     departments,
     semesters,
     subjectsPageRecord,
+    studentYears,
     students,
     errorMessage,
     File,

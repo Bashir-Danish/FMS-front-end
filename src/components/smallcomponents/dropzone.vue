@@ -121,6 +121,10 @@ const remove = () => {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
+        max-height: 8em;
+        min-height: 8em;
+        background-color: transparent;
+        box-shadow: none;
     }
 
     ul {

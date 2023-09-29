@@ -4,13 +4,10 @@ import { mainStore } from '@/stores/main';
 import { type Semester, type Department } from '@/types/model';
 import { Icon } from "@vicons/utils";
 import { Delete24Regular, FolderAdd28Regular, Print20Regular } from "@vicons/fluent";
-import subjectItems from "@/components/smallcomponents/subjectItems.vue"
-import BaseInput from "@/components/smallcomponents/baseinput.vue";
 import * as XLSX from 'xlsx';
 import {
-  Add,
-  PencilOutline,
-} from "@vicons/ionicons5";
+  ArrowSync24Regular
+} from "@vicons/fluent";
 
 
 const useMain = mainStore();
@@ -43,7 +40,6 @@ const selectedRecord = ref<any>([]);
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
-
 const handleFileUpload = (event: any) => {
   const file = event.target?.files[0];
   // console.log(file)
@@ -68,8 +64,6 @@ const handleFileUpload = (event: any) => {
   }
 
 };
-
-
 const processExcelData = async () => {
 
   if (formData.value.department_id && formData.value.semester_id) {
@@ -90,8 +84,6 @@ const processExcelData = async () => {
 
   }
 };
-
-
 const departmentData = computed(() => {
   if (depFilterText.value) {
     const searchLowerCase = depFilterText.value.toLowerCase();
@@ -116,12 +108,6 @@ const semesterData = computed(() => {
   }
   return useMain.semesters;
 });
-const handleRecordUpdate = (subject: any) => {
-  selectedRecord.value = subject;
-  showUpdateForm.value = true;
-};
-
-
 const handleDelete = async (semesterId: number, departmentId: number) => {
   const shouldDelete = window.confirm("Are you sure you want to delete this all ?");
   if (shouldDelete) {
@@ -132,8 +118,6 @@ const handleDelete = async (semesterId: number, departmentId: number) => {
     }
   }
 };
-
-
 const translateSemesterNumber = (number: number) => {
   const translations = ["اول", "دوم", "سوم", "چهارم", "پنجم", "ششم", "هفتم", "هشتم"];
 
@@ -168,6 +152,16 @@ const filterBySem = async (semester: Semester) => {
     loader.value = false
   }, 1200);
 }
+const refresh = async () => {
+  loader.value = true;
+  let res = await useMain.fetchEnrolls(depId.value, semId.value)
+  setTimeout(() => {
+    useMain.enrollments.enrollment = res.enrollments
+    useMain.enrollments.subjects = res.subjects
+    console.log(useMain.enrollments.enrollment)
+    loader.value = false
+  }, 1200);
+};
 const closeForm = () => {
   selectedRecord.value = null;
 
@@ -188,6 +182,62 @@ const selectedSemData = computed(() => {
   return useMain.semesters.find(sem => sem.semester_id ===
     semId.value)
 });
+
+/////////////////////////////////
+/////////////////////////////////
+/////////////////////////////////
+function generateAndDownloadExcel(data: any) {
+  // Create a new workbook
+  const workbook = XLSX.utils.book_new();
+
+  // Create a worksheet
+  const worksheet = XLSX.utils.json_to_sheet(data);
+
+  // Add the worksheet to the workbook
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Enrollments');
+
+  // Create a blob containing the workbook's data
+  const arrayBuffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
+const uint8Array = new Uint8Array(arrayBuffer);
+const blob = new Blob([uint8Array], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  // Create a download link and trigger the download
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'enrollments.xlsx';
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+}
+
+
+const excelData = computed(() => {
+  const enrollments = useMain.enrollments.enrollment;
+
+  if (Array.isArray(enrollments)) {
+    return enrollments.map((enrollment) => {
+      // Define the type of the `row` object
+      const row: Record<string, any> = {
+        ssid: enrollment.ssid,
+        name: enrollment.name,
+        fname: enrollment.fname,
+      };
+
+      enrollment.grades.forEach((grade:any) => {
+        // Use 0 if the grade is null
+        row[grade.subject_name] = grade.grade === null ? 0 : grade.grade;
+      });
+      row['percentage'] = enrollment.percentage;                    
+
+
+      return row;
+    });
+  } else {
+   
+    return [];
+  }
+});
+
 
 
 onMounted(() => {
@@ -246,7 +296,7 @@ onMounted(() => {
 
             <div class="button-group">
               <button type="button" @click="processExcelData">ذخیره</button>
-              <button @click="" type="button">لغو</button>
+              <button @click="closeForm" type="button">لغو</button>
             </div>
           </form>
         </div>
@@ -294,12 +344,17 @@ onMounted(() => {
           </div>
         </span>
         <span id="add-sem-buttons">
+          <button @click="refresh">
+            <Icon>
+              <ArrowSync24Regular />
+            </Icon>
+          </button>
           <button @click="showCreateForm = true">
             <Icon>
               <FolderAdd28Regular />
             </Icon>
           </button>
-          <button @click="showCreateForm = true">
+          <button @click="generateAndDownloadExcel(excelData)">
             <Icon>
               <Print20Regular />
             </Icon>
@@ -323,10 +378,10 @@ onMounted(() => {
         </span>
       </div>
       <div class="loader" v-if="loader">
-      <div class="fulfilling-square-spinner" >
-        <div class="spinner-inner"></div>
+        <div class="fulfilling-square-spinner">
+          <div class="spinner-inner"></div>
+        </div>
       </div>
-    </div>
       <ul v-if="useMain.enrollments.enrollment.length > 0">
         <li v-for="(enroll, index) in useMain.enrollments.enrollment" :key="index" class="item">
           <div class="list-item-content">
@@ -362,7 +417,7 @@ onMounted(() => {
       </ul>
       <p v-else class="empty-list-message">No items found.</p>
     </div>
-    
+
   </div>
 </template>
   
@@ -709,7 +764,8 @@ ul {
   }
 
 }
-.loader{
+
+.loader {
   width: 100%;
   height: calc(100vh - 6.5em);
   display: flex;
@@ -727,7 +783,7 @@ ul {
   .fulfilling-square-spinner * {
     box-sizing: border-box;
   }
-  
+
   .fulfilling-square-spinner {
     height: 40px;
     width: 40px;
@@ -735,7 +791,7 @@ ul {
     border: 3px solid $primary;
     animation: fulfilling-square-spinner-animation 4s infinite ease;
   }
-  
+
   .fulfilling-square-spinner .spinner-inner {
     vertical-align: top;
     display: inline-block;
@@ -744,46 +800,46 @@ ul {
     opacity: 1;
     animation: fulfilling-square-spinner-inner-animation 2s infinite ease-in;
   }
-  
+
   @keyframes fulfilling-square-spinner-animation {
     0% {
       transform: rotate(0deg);
     }
-  
+
     25% {
       transform: rotate(180deg);
     }
-  
+
     50% {
       transform: rotate(180deg);
     }
-  
+
     75% {
       transform: rotate(360deg);
     }
-  
+
     100% {
       transform: rotate(360deg);
     }
   }
-  
+
   @keyframes fulfilling-square-spinner-inner-animation {
     0% {
       height: 0%;
     }
-  
+
     25% {
       height: 0%;
     }
-  
+
     50% {
       height: 100%;
     }
-  
+
     75% {
       height: 100%;
     }
-  
+
     100% {
       height: 0%;
     }
