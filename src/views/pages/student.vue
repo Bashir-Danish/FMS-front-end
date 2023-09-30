@@ -36,9 +36,9 @@ const selectedStudent = ref<Student | null>(null);
 const semFilterDrop = ref(false)
 const depFilterDrop = ref(false)
 const depFilterText = ref()
-const yearValue = ref(1390)
+
 const yearStr = ref()
-const depId = ref()
+
 const loader = ref(false)
 
 const departmentData = computed(() => {
@@ -66,12 +66,12 @@ const yearData = computed(() => {
 });
 
 const filterByDep = async (department: Department) => {
-  console.log(yearValue.value)
+  console.log(useMain.studentYear)
 
   loader.value = true
   depFilterText.value = ''
-  depId.value = department.department_id
-  let res = await useMain.getAllStudents(depId.value, yearValue.value)
+  useMain.studentDepId = department.department_id
+  let res = await useMain.getAllStudents(useMain.studentDepId, useMain.studentYear)
   // formData.value.department_id = department.department_id;
   setTimeout(() => {
     // useMain.students = res.students;
@@ -81,12 +81,12 @@ const filterByDep = async (department: Department) => {
 }
 
 const filterByYear = async (year: any) => {
-  console.log(yearValue.value)
+  console.log(useMain.studentYear)
 
   loader.value = true
   yearStr.value = ''
-  yearValue.value = year.year
-  await useMain.getAllStudents(depId.value, yearValue.value)
+  useMain.studentYear = year.year
+  await useMain.getAllStudents(useMain.studentDepId, useMain.studentYear)
   setTimeout(() => {
     loader.value = false
   }, 1200);
@@ -94,7 +94,7 @@ const filterByYear = async (year: any) => {
 
 const refresh = async () => {
   loader.value = true;
-  await useMain.getAllStudents(depId.value, yearValue.value)
+  await useMain.getAllStudents(useMain.studentDepId, useMain.studentYear)
   setTimeout(() => {
     loader.value = false
   }, 1200);
@@ -180,16 +180,8 @@ const selectImage = async (id?: number) => {
   }
 };
 
-watch(()=> useMain.studentYears,()=>{
-  depId.value = useMain.departments?.[0]?.department_id ?? 1;
-  yearValue.value = useMain.studentYears?.[0]?.year
-})
-// onMounted(async () => {
-//   depId.value = useMain.departments?.[0]?.department_id ?? 1;
-//   yearValue.value = useMain.studentYears?.[0]?.year
-//   console.log(yearValue.value);
-  
-// });
+
+
 </script>
 
 <template>
@@ -263,10 +255,10 @@ watch(()=> useMain.studentYears,()=>{
     <div class="student-list">
       <div class="header1">
         <span id="name"> لیست محصلین دیپارتمنت
-          <span>{{ useMain.departments.find(dept => dept.department_id ===
-            depId)?.name }}</span>
+          <span>{{ useMain.departments.find(dep => dep.department_id ===
+            useMain.studentDepId)?.name }}</span>
           سال
-          <span>{{ yearValue }} ه ش</span>
+          <span>{{ useMain.studentYear }} ه ش</span>
         </span>
         <span id="filters">
           <div class="input-group">

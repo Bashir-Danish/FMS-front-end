@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { mainStore } from '@/stores/main';
 import { type Semester, type Department } from '@/types/model';
 import { Icon } from "@vicons/utils";
@@ -15,8 +15,7 @@ const semesterDrop = ref(false)
 const departmentDrop = ref(false)
 const semFilterDrop = ref(false)
 const depFilterDrop = ref(false)
-const depId = ref()
-const semId = ref()
+
 const loader = ref(false)
 
 
@@ -65,13 +64,20 @@ const handleFileUpload = (event: any) => {
 
 };
 const processExcelData = async () => {
-
+  loader.value = true
   if (formData.value.department_id && formData.value.semester_id) {
 
     if (formData.value.grades.length > 0) {
       try {
         await useMain.importGrade(formData.value.department_id, formData.value.semester_id, formData.value.grades);
         closeForm()
+        let res = await useMain.fetchEnrolls(useMain.enrollDepId, useMain.enrollSemId)
+        setTimeout(() => {
+          useMain.enrollments.enrollment = res.enrollments
+          useMain.enrollments.subjects = res.subjects
+          console.log(useMain.enrollments.enrollment)
+          loader.value = false
+        }, 50);
       } catch (error) {
         console.error("Error sending grade import request:", error);
       }
@@ -130,8 +136,8 @@ const translateSemesterNumber = (number: number) => {
 const filterByDep = async (department: Department) => {
   loader.value = true
   depFilterText.value = ''
-  depId.value = department.department_id
-  let res = await useMain.fetchEnrolls(depId.value, semId.value)
+  useMain.enrollDepId = department.department_id
+  let res = await useMain.fetchEnrolls(useMain.enrollDepId, useMain.enrollSemId)
   // formData.value.department_id = department.department_id;
   setTimeout(() => {
     useMain.enrollments.enrollment = res.enrollments
@@ -143,8 +149,8 @@ const filterBySem = async (semester: Semester) => {
   loader.value = true
 
   semFilterText.value = ''
-  semId.value = semester.semester_id
-  let res = await useMain.fetchEnrolls(depId.value, semId.value)
+  useMain.enrollSemId = semester.semester_id
+  let res = await useMain.fetchEnrolls(useMain.enrollDepId, useMain.enrollSemId)
   // formData.value.semester_id = semester.semester_id;
   setTimeout(() => {
     useMain.enrollments.enrollment = res.enrollments
@@ -154,7 +160,7 @@ const filterBySem = async (semester: Semester) => {
 }
 const refresh = async () => {
   loader.value = true;
-  let res = await useMain.fetchEnrolls(depId.value, semId.value)
+  let res = await useMain.fetchEnrolls(useMain.enrollDepId, useMain.enrollSemId)
   setTimeout(() => {
     useMain.enrollments.enrollment = res.enrollments
     useMain.enrollments.subjects = res.subjects
@@ -180,7 +186,7 @@ const selectSemester = (semester: Semester) => {
 }
 const selectedSemData = computed(() => {
   return useMain.semesters.find(sem => sem.semester_id ===
-    semId.value)
+    useMain.enrollSemId)
 });
 
 /////////////////////////////////
@@ -198,8 +204,8 @@ function generateAndDownloadExcel(data: any) {
 
   // Create a blob containing the workbook's data
   const arrayBuffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
-const uint8Array = new Uint8Array(arrayBuffer);
-const blob = new Blob([uint8Array], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const uint8Array = new Uint8Array(arrayBuffer);
+  const blob = new Blob([uint8Array], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   // Create a download link and trigger the download
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -216,33 +222,33 @@ const excelData = computed(() => {
 
   if (Array.isArray(enrollments)) {
     return enrollments.map((enrollment) => {
-      // Define the type of the `row` object
       const row: Record<string, any> = {
         ssid: enrollment.ssid,
         name: enrollment.name,
         fname: enrollment.fname,
       };
-
-      enrollment.grades.forEach((grade:any) => {
-        // Use 0 if the grade is null
+      enrollment.grades.forEach((grade: any) => {
         row[grade.subject_name] = grade.grade === null ? 0 : grade.grade;
       });
-      row['percentage'] = enrollment.percentage;                    
-
-
+      row['percentage'] = enrollment.percentage;
       return row;
     });
   } else {
-   
+
     return [];
   }
 });
 
-
+watch(() => useMain.semesters, () => {
+  useMain.enrollDepId = useMain.departments?.[0]?.department_id;
+  useMain.enrollSemId = useMain.semesters?.[0]?.semester_id;
+  console.log(useMain.enrollDepId);
+  console.log(useMain.enrollSemId);
+})
 
 onMounted(() => {
-  depId.value = useMain.departments?.[0]?.department_id ?? 1;
-  semId.value = useMain.semesters?.[0]?.semester_id ?? 1;
+  // console.log(useMain.enrollDepId);
+  // console.log(useMain.enrollSemId);
 });
 </script>
 <template>
@@ -306,7 +312,7 @@ onMounted(() => {
       <div class="header1">
         <span id="name"> لیست نمرات
           <span>{{ useMain.departments.find(dept => dept.department_id ===
-            depId)?.name }}</span>
+            useMain.enrollDepId)?.name }}</span>
           سمستر
           <span>
             {{ selectedSemData?.semester_number ? translateSemesterNumber(selectedSemData?.semester_number) : 'N/A' }}
@@ -444,10 +450,12 @@ ul {
   border-radius: 10px;
   border: 2px solid rgba(255, 255, 255, 0.98);
   height: calc(100vh - 6.5em);
+
   // font-size: 16px;
-  .empty-list-message{
+  .empty-list-message {
     margin: auto auto;
   }
+
   @include hideScrollbar();
 
   &:hover {

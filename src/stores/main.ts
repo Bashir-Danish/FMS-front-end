@@ -1,4 +1,4 @@
-import { ref, computed, reactive } from "vue";
+import { ref, computed, watch } from "vue";
 import { defineStore } from "pinia";
 import {
   type Department,
@@ -8,7 +8,7 @@ import {
 } from "@/types/model";
 import axios from "@/plugins/axios";
 import { useRouter } from "vue-router";
-import {  destroyToken } from "@/utils/jwt";
+import { destroyToken } from "@/utils/jwt";
 
 export const mainStore = defineStore("main", () => {
   // const confirmDialog = reactive({
@@ -20,35 +20,52 @@ export const mainStore = defineStore("main", () => {
   //   },
   // });
 
-  const baseUrl = ref('http://api.kdanish.com');
+  const baseUrl = ref("http://api.kdanish.com");
   // const baseUrl = ref('http://localhost:5000');
-// String for serach
+  // String for serach
   const semesterSTR = ref();
   const departmentSTR = ref();
-
-  const sideBar = ref(true);
-
-
 // main states
 
-  const departments = ref<Department[]>([]);
-  const semesters = ref<Semester[]>([]);
-  const students = ref<Student[]>([]);
-  const enrollments = ref({
-    enrollment:<any>[],
-    subjects:<any>[]
-  });
-  const File = ref<any[]>([]);
-  const studentYears = ref<any[]>([]);
-  const subjectItems = ref<any[]>([]);
-  const subjectsPageRecord = ref<any[]>([]);
+const departments = ref<Department[]>([]);
+const semesters = ref<Semester[]>([]);
+const students = ref<Student[]>([]);
+const enrollments = ref({
+  enrollment: <any>[],
+  subjects: <any>[],
+});
+const File = ref<any[]>([]);
+const studentYears = ref<any[]>([]);
+const subjectItems = ref<any[]>([]);
+const subjectsPageRecord = ref<any[]>([]);
 
-  const errorMessage = ref({
-    title: "",
-    message: "",
-    success: false,
-  });
-  const router = useRouter();
+const errorMessage = ref({
+  title: "",
+  message: "",
+  success: false,
+});
+const router = useRouter();
+  const sideBar = ref(true);
+  // enroll pages states
+
+  const enrollDepId = ref();
+  const enrollSemId = ref();
+  watch(() => semesters.value, () => {
+    enrollDepId.value = departments.value?.[0]?.department_id;
+    enrollSemId.value = semesters.value?.[0]?.semester_id;
+  })
+  // studnent pages states
+  const studentDepId = ref();
+  const studentYear = ref();
+
+  watch(
+    () => studentYears.value,
+    () => {
+      studentDepId.value = departments.value?.[0]?.department_id;
+      studentYear.value = studentYears.value?.[0]?.year;
+    }
+  );
+  
 
   const departmentData = computed(() => {
     if (departmentSTR.value) {
@@ -96,7 +113,7 @@ export const mainStore = defineStore("main", () => {
     try {
       const res = await axios.get("/departments");
       departments.value = res.data;
-    } catch (error:any) {
+    } catch (error: any) {
       if (error.response.status == 401) {
         destroyToken();
         router.push("/login");
@@ -163,7 +180,7 @@ export const mainStore = defineStore("main", () => {
     try {
       const res = await axios.get("/semesters");
       semesters.value = res.data;
-    } catch (error:any) {
+    } catch (error: any) {
       if (error.response.status == 401) {
         destroyToken();
         router.push("/login");
@@ -189,7 +206,7 @@ export const mainStore = defineStore("main", () => {
           name: data.name,
           year: data.year,
           semester_number: data.semester_number,
-          is_passed:0
+          is_passed: 0,
         });
         setMessage("سمستر", res.data.message, true);
       }
@@ -226,7 +243,7 @@ export const mainStore = defineStore("main", () => {
           };
         }
         setMessage("سمستر", res.data.message, true);
-        getAllSemesters()
+        getAllSemesters();
       }
     } catch (error: any) {
       setMessage("سمستر", error.response.data.error, false);
@@ -309,7 +326,7 @@ export const mainStore = defineStore("main", () => {
       const response = await axios.post("/enrolls/import", {
         departmentId: departmentId,
         semesterId: semesterId,
-        enrollmentsData:enrollmentsData
+        enrollmentsData: enrollmentsData,
       });
 
       if (response.status === 200) {
@@ -332,7 +349,7 @@ export const mainStore = defineStore("main", () => {
       if (res?.status === 200) {
         subjectsPageRecord.value = res.data.subjects;
       }
-    } catch (error:any) {
+    } catch (error: any) {
       if (error.response.status == 401) {
         destroyToken();
         router.push("/login");
@@ -463,8 +480,8 @@ export const mainStore = defineStore("main", () => {
   async function getYears() {
     try {
       let response = await axios.get("/students/years");
-      studentYears.value = response.data.years;   
-    } catch (error:any) {
+      studentYears.value = response.data.years;
+    } catch (error: any) {
       if (error.response.status == 401) {
         destroyToken();
         router.push("/login");
@@ -475,14 +492,14 @@ export const mainStore = defineStore("main", () => {
   // Get all students
   async function getAllStudents(departmentId: number, year: number) {
     try {
-      let response = await axios.get("/students",{
+      let response = await axios.get("/students", {
         params: {
           departmentId: departmentId,
           year: year,
         },
       });
       students.value = response.data.students;
-    } catch (error:any) {
+    } catch (error: any) {
       if (error.response.status == 401) {
         destroyToken();
         router.push("/login");
@@ -630,7 +647,11 @@ export const mainStore = defineStore("main", () => {
     semesterData,
     departmentData,
     subjectItems,
-    enrollments
+    enrollments,
+    enrollDepId,
+    enrollSemId,
+    studentDepId,
+    studentYear,
     // openConfirmDialog,
     // closeConfirmDialog,
     // confirmDialog
