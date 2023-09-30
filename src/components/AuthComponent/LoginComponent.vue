@@ -47,7 +47,7 @@ const handleLoginSubmit = async (event: { preventDefault: () => void }) => {
               <div class="circle"></div>
             </div>
           </div>
-          {{ !authStore.errorMsg ? '' : 'ورود' }}
+          {{ loader ? '' : 'ورود' }}
         </button>
 
         <div class="options">
