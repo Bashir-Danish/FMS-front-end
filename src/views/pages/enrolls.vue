@@ -415,7 +415,7 @@ onMounted(() => {
           </div>
         </li>
       </ul>
-      <p v-else class="empty-list-message">No items found.</p>
+      <p v-else class="empty-list-message">خالی.</p>
     </div>
 
   </div>
@@ -445,7 +445,9 @@ ul {
   border: 2px solid rgba(255, 255, 255, 0.98);
   height: calc(100vh - 6.5em);
   // font-size: 16px;
-
+  .empty-list-message{
+    margin: auto auto;
+  }
   @include hideScrollbar();
 
   &:hover {

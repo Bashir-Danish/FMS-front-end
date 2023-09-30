@@ -183,6 +183,8 @@ const selectImage = async (id?: number) => {
 onMounted(async () => {
   depId.value = useMain.departments?.[0]?.department_id ?? 1;
   yearValue.value = useMain.studentYears?.[0]?.year
+  console.log(yearValue.value);
+  
 });
 </script>
 
@@ -353,7 +355,7 @@ onMounted(async () => {
           </div>
         </li>
       </ul>
-      <p v-else class="empty-list-message">No items found.</p>
+      <p v-else class="empty-list-message">خالی.</p>
     </div>
   </div>
 </template>
@@ -367,6 +369,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  
   background: rgba(255, 255, 255, 0.3);
   box-shadow: 0 2px 3px 0 rgba(31, 38, 135, 0.37),
     0 -1px 3px 0 rgba(116, 119, 156, 0.085);
@@ -467,7 +470,9 @@ onMounted(async () => {
       }
     }
   }
-
+  .empty-list-message{
+    margin: auto auto;
+  }
 }
 
 .header1 {
