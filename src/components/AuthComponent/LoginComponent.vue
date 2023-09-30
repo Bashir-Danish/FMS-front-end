@@ -40,14 +40,14 @@ const handleLoginSubmit = async (event: { preventDefault: () => void }) => {
         <p class="error-message">{{ authStore.errorMsg }}</p>
         <button @click="handleLoginSubmit">
 
-          <div class="loader" v-if="loader && !authStore.errorMsg">
+          <div class="login-loader" v-if="loader && !authStore.errorMsg">
             <div class="circles-to-rhombuses-spinner">
               <div class="circle"></div>
               <div class="circle"></div>
               <div class="circle"></div>
             </div>
           </div>
-          {{ loader ? '' : 'ورود' }}
+          {{ !authStore.errorMsg ? '' : 'ورود' }}
         </button>
 
         <div class="options">
@@ -222,6 +222,8 @@ $color-border: #ccc;
 
       button {
         width: 100%;
+        max-height: 3rem;
+        min-height: 3rem;
         padding: 15px;
         background-color: darken($primary, 10%);
         color: #fff;
@@ -293,7 +295,7 @@ $color-border: #ccc;
   }
 }
 
-.loader {
+.login-loader {
   // position: absolute;
   // top: 0;
   // left: 0;
