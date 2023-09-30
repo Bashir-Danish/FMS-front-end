@@ -98,7 +98,7 @@ const items = ref<MenuItem[]>([
       {
         name: "users",
         link: "/settings/user",
-        title: "استادان",
+        title: "کاربران",
         icon: "person",
         open: false,
       },

@@ -8,10 +8,22 @@ const authStore = useAuthStore();
 const email = ref<string>("");
 const password = ref<string>("");
 const remember = ref(false);
+const loader = ref(false);
+const errorMsg = ref('');
 
-const handleLoginSubmit = async(event: { preventDefault: () => void }) => {
-    event.preventDefault();
-   await authStore.login(email.value, password.value, remember.value);
+const handleLoginSubmit = async (event: { preventDefault: () => void }) => {
+  loader.value = true
+  errorMsg.value = ''
+  event.preventDefault();
+  if (email.value === '' || password.value === '') {
+    errorMsg.value = 'لطفا ایمیل و رمز عبور خود را وارد کنید'
+    loader.value = false
+  } else {
+    const res = await authStore.login(email.value, password.value, remember.value);
+    loader.value = false
+    errorMsg.value = res
+    console.log(res);
+  }
 };
 </script>
 <template>
@@ -23,14 +35,25 @@ const handleLoginSubmit = async(event: { preventDefault: () => void }) => {
     <div class="auth-form">
       <form>
         <h1>!خوش آمدید</h1>
-        <p>لطفاً اطلاعات خود را وارد کنید</p>
+        <p class="subtitle">لطفاً اطلاعات خود را وارد کنید</p>
         <BaseInput v-model="email" input-type="email" input-id="ایمیل:" :is-required="true"
           placeholder="ایمیل خود را وارد کنید" />
 
         <BaseInput v-model="password" input-type="password" input-id="رمز عبور:" :is-required="true"
           placeholder="رمز عبور خود را وارد کنید" />
+        <p class="error-message">{{ errorMsg }}</p>
+        <button @click="handleLoginSubmit">
+          
+          <div class="loader" v-if="loader">
+            <div class="circles-to-rhombuses-spinner">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+          </div>
+          </div>
+          {{ loader ? '' : 'ورود' }}
+        </button>
 
-        <button @click="handleLoginSubmit">ورود</button>
         <div class="options">
           <label>
             <input type="checkbox" v-model="remember" :value="remember" /> مرا به خاطر بسپار به
@@ -157,9 +180,24 @@ $color-border: #ccc;
         color: $dOp-9;
       }
 
-      p {
+      .subtitle {
         margin-bottom: 2.5em;
         color: $dOp-5;
+        font-size: 1em;
+        // color: darken($primary, 10%);
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+          cursor: pointer;
+        }
+      }
+
+      .error-message {
+        font-size: 0.9em;
+        color: $red;
+        min-height: 2rem;
+
       }
 
       .form-group {
@@ -196,6 +234,7 @@ $color-border: #ccc;
         font-size: 1em;
         font-weight: 500;
         transition: background-color 0.3s ease-in-out;
+        position: relative;
 
         &:hover {
           background-color: $primary;
@@ -208,16 +247,7 @@ $color-border: #ccc;
         justify-content: space-between;
         align-items: baseline;
 
-        p {
-          font-size: 0.9em;
-          color: darken($primary, 10%);
-          text-decoration: none;
 
-          &:hover {
-            text-decoration: underline;
-            cursor: pointer;
-          }
-        }
       }
     }
   }
@@ -265,4 +295,91 @@ $color-border: #ccc;
   100% {
     transform: translateY(0);
   }
-}</style>
+}
+
+.loader {
+  // position: absolute;
+  // top: 0;
+  // left: 0;
+  // background: rgba(255, 255, 255, 0.4);
+  // box-shadow: 0 2px 3px 0 rgba(31, 38, 135, 0.37),
+  //   0 -1px 3px 0 rgba(116, 119, 156, 0.085);
+  // backdrop-filter: blur(0px);
+  // -webkit-backdrop-filter: blur(0px);
+  // z-index: 1000000;
+  // width: 100%;
+  height: 100%;
+  // min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+
+  .circles-to-rhombuses-spinner, .circles-to-rhombuses-spinner * {
+      box-sizing: border-box;
+    }
+
+    .circles-to-rhombuses-spinner {
+      height: 15px;
+      width: calc( (15px + 15px * 1.125) * 3);
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .circles-to-rhombuses-spinner .circle {
+      height: 15px;
+      width: 15px;
+      margin-left: calc(15px * 1.125);
+      transform: rotate(45deg);
+      border-radius: 10%;
+      border: 3px solid $white;
+      overflow: hidden;
+      background: transparent;
+
+      animation: circles-to-rhombuses-animation 1200ms linear infinite;
+    }
+
+    .circles-to-rhombuses-spinner .circle:nth-child(1) {
+      animation-delay: calc(150ms * 1);
+      margin-left: 0
+    }
+
+    .circles-to-rhombuses-spinner .circle:nth-child(2) {
+      animation-delay: calc(150ms * 2);
+    }
+
+    .circles-to-rhombuses-spinner .circle:nth-child(3) {
+      animation-delay: calc(150ms * 3);
+    }
+
+    @keyframes circles-to-rhombuses-animation {
+      0% {
+        border-radius: 10%;
+      }
+
+      17.5% {
+        border-radius: 10%;
+      }
+
+      50% {
+        border-radius: 100%;
+      }
+
+
+      93.5% {
+        border-radius: 10%;
+      }
+
+      100% {
+        border-radius: 10%;
+      }
+    }
+
+    @keyframes circles-to-rhombuses-background-animation {
+      50% {
+        opacity: 0.4;
+      }
+    }
+}
+</style>

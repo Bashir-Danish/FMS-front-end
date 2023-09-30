@@ -197,10 +197,12 @@ export const useAuthStore = defineStore("auth", () => {
         saveToken(res.data.token);
         router.push({ path: "/", name: "home" });
       }
+      return res.data
     } catch (error: any) {
       console.error(error.response.data.error);
       // this.isLoggedIn = false;
       // this.errorMassage = error.response?.data?.error || 'Error logging in';
+      return error.response.data.error
     }
   }
 

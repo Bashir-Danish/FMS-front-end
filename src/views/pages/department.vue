@@ -36,6 +36,7 @@ const handleSubmit = async () => {
       closeForm();
     } catch (error) {
       console.error('Error creating department:', error);
+      showCreateForm.value = false
     }
   } else if (showUpdateForm.value && selectedDepartment.value) {
     try {
