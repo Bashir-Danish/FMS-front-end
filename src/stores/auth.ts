@@ -17,6 +17,7 @@ export const useAuthStore = defineStore("auth", () => {
   const isLoggedIn = ref<AuthState>();
   const users = ref<User[]>([]);
   const sideBar = "false";
+  const errorMsg = ref('');
 
   const useMain = mainStore();
   const router = useRouter();
@@ -196,13 +197,15 @@ export const useAuthStore = defineStore("auth", () => {
       if (res?.status === 200) {
         saveToken(res.data.token);
         router.push({ path: "/", name: "home" });
+      }else{
+        errorMsg.value = res.data
       }
-      return res.data
     } catch (error: any) {
       console.error(error.response.data.error);
       // this.isLoggedIn = false;
       // this.errorMassage = error.response?.data?.error || 'Error logging in';
-      return error.response.data.error
+      errorMsg.value = error.response.data.error
+
     }
   }
 
@@ -232,6 +235,7 @@ export const useAuthStore = defineStore("auth", () => {
     userData,
     users,
     sideBar,
+    errorMsg
   };
 });
 

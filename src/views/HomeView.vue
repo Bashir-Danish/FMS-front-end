@@ -32,6 +32,9 @@ onMounted(async () => {
 
   try {
     await Promise.all([
+    useAuth.getUserInfo(),
+      useMain.getYears(),
+      useMain.getAllDepartments(),
       useMain.getAllSemesters(),
       useMain.getAllSubjects(),
     ]);

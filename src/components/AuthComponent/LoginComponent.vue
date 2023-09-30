@@ -9,20 +9,16 @@ const email = ref<string>("");
 const password = ref<string>("");
 const remember = ref(false);
 const loader = ref(false);
-const errorMsg = ref('');
 
 const handleLoginSubmit = async (event: { preventDefault: () => void }) => {
   loader.value = true
-  errorMsg.value = ''
+  authStore.errorMsg = ''
   event.preventDefault();
   if (email.value === '' || password.value === '') {
-    errorMsg.value = 'لطفا ایمیل و رمز عبور خود را وارد کنید'
+    authStore.errorMsg = 'لطفا ایمیل و رمز عبور خود را وارد کنید'
     loader.value = false
   } else {
     const res = await authStore.login(email.value, password.value, remember.value);
-    loader.value = false
-    errorMsg.value = res
-    console.log(res);
   }
 };
 </script>
@@ -41,15 +37,15 @@ const handleLoginSubmit = async (event: { preventDefault: () => void }) => {
 
         <BaseInput v-model="password" input-type="password" input-id="رمز عبور:" :is-required="true"
           placeholder="رمز عبور خود را وارد کنید" />
-        <p class="error-message">{{ errorMsg }}</p>
+        <p class="error-message">{{ authStore.errorMsg }}</p>
         <button @click="handleLoginSubmit">
-          
-          <div class="loader" v-if="loader">
+
+          <div class="loader" v-if="loader && !authStore.errorMsg">
             <div class="circles-to-rhombuses-spinner">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-          </div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+            </div>
           </div>
           {{ loader ? '' : 'ورود' }}
         </button>
@@ -315,71 +311,72 @@ $color-border: #ccc;
   justify-content: center;
   margin: 0 auto;
 
-  .circles-to-rhombuses-spinner, .circles-to-rhombuses-spinner * {
-      box-sizing: border-box;
-    }
+  .circles-to-rhombuses-spinner,
+  .circles-to-rhombuses-spinner * {
+    box-sizing: border-box;
+  }
 
-    .circles-to-rhombuses-spinner {
-      height: 15px;
-      width: calc( (15px + 15px * 1.125) * 3);
-      display: flex;
-      align-items: center;
-      justify-content: center
-    }
+  .circles-to-rhombuses-spinner {
+    height: 15px;
+    width: calc((15px + 15px * 1.125) * 3);
+    display: flex;
+    align-items: center;
+    justify-content: center
+  }
 
-    .circles-to-rhombuses-spinner .circle {
-      height: 15px;
-      width: 15px;
-      margin-left: calc(15px * 1.125);
-      transform: rotate(45deg);
+  .circles-to-rhombuses-spinner .circle {
+    height: 15px;
+    width: 15px;
+    margin-left: calc(15px * 1.125);
+    transform: rotate(45deg);
+    border-radius: 10%;
+    border: 3px solid $white;
+    overflow: hidden;
+    background: transparent;
+
+    animation: circles-to-rhombuses-animation 1200ms linear infinite;
+  }
+
+  .circles-to-rhombuses-spinner .circle:nth-child(1) {
+    animation-delay: calc(150ms * 1);
+    margin-left: 0
+  }
+
+  .circles-to-rhombuses-spinner .circle:nth-child(2) {
+    animation-delay: calc(150ms * 2);
+  }
+
+  .circles-to-rhombuses-spinner .circle:nth-child(3) {
+    animation-delay: calc(150ms * 3);
+  }
+
+  @keyframes circles-to-rhombuses-animation {
+    0% {
       border-radius: 10%;
-      border: 3px solid $white;
-      overflow: hidden;
-      background: transparent;
-
-      animation: circles-to-rhombuses-animation 1200ms linear infinite;
     }
 
-    .circles-to-rhombuses-spinner .circle:nth-child(1) {
-      animation-delay: calc(150ms * 1);
-      margin-left: 0
+    17.5% {
+      border-radius: 10%;
     }
 
-    .circles-to-rhombuses-spinner .circle:nth-child(2) {
-      animation-delay: calc(150ms * 2);
+    50% {
+      border-radius: 100%;
     }
 
-    .circles-to-rhombuses-spinner .circle:nth-child(3) {
-      animation-delay: calc(150ms * 3);
+
+    93.5% {
+      border-radius: 10%;
     }
 
-    @keyframes circles-to-rhombuses-animation {
-      0% {
-        border-radius: 10%;
-      }
-
-      17.5% {
-        border-radius: 10%;
-      }
-
-      50% {
-        border-radius: 100%;
-      }
-
-
-      93.5% {
-        border-radius: 10%;
-      }
-
-      100% {
-        border-radius: 10%;
-      }
+    100% {
+      border-radius: 10%;
     }
+  }
 
-    @keyframes circles-to-rhombuses-background-animation {
-      50% {
-        opacity: 0.4;
-      }
+  @keyframes circles-to-rhombuses-background-animation {
+    50% {
+      opacity: 0.4;
     }
+  }
 }
 </style>
