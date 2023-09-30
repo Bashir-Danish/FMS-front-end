@@ -20,6 +20,7 @@ const handleLoginSubmit = async (event: { preventDefault: () => void }) => {
   } else {
     const res = await authStore.login(email.value, password.value, remember.value);
   }
+  loader.value = false
 };
 </script>
 <template>
