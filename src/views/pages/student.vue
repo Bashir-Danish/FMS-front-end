@@ -6,7 +6,8 @@ import BaseInput from "@/components/smallcomponents/baseinput.vue";
 import dropZone from '@/components/smallcomponents/dropzone.vue';
 import { Icon } from "@vicons/utils";
 import {
-  Delete24Regular
+  Delete24Regular,
+  ArrowSync24Regular
 } from "@vicons/fluent";
 
 import {
@@ -54,13 +55,13 @@ const yearData = computed(() => {
   if (yearStr.value) {
     const searchLowerCase = yearStr.value.toLowerCase();
     return useMain.studentYears.filter((item) => {
-    
+
       const yearMatch = item.year.toString().includes(searchLowerCase);
-    
-    
-      return yearMatch ;
+
+
+      return yearMatch;
     });
-  }  
+  }
   return useMain.studentYears;
 });
 
@@ -88,6 +89,13 @@ const filterByYear = async (year: any) => {
   }, 1200);
 }
 
+const refresh = async () => {
+  loader.value = true;
+  await useMain.getAllStudents(depId.value, yearValue.value)
+  setTimeout(() => {
+    loader.value = false
+  }, 1200);
+};
 const handleUpdate = (student: any) => {
   selectedStudent.value = student;
   formData.value = { ...student };
@@ -169,7 +177,7 @@ const selectImage = async (id?: number) => {
 
 onMounted(async () => {
   depId.value = useMain.departments?.[0]?.department_id ?? 1;
-  yearValue.value = useMain.studentYears?.[0]?.year  
+  yearValue.value = useMain.studentYears?.[0]?.year
 });
 </script>
 
@@ -208,8 +216,6 @@ onMounted(async () => {
                 <BaseInput v-model="formData.ssid" input-type="number" input-id="آیدی:" :is-required="true"
                   placeholder="آیدی را وارد کنید" />
               </div>
-
-
             </div>
             <div class="st-input-groups">
               <div class="input-group">
@@ -248,7 +254,7 @@ onMounted(async () => {
         <span id="name"> لیست محصلین دیپارتمنت
           <span>{{ useMain.departments.find(dept => dept.department_id ===
             depId)?.name }}</span>
-           سال
+          سال
           <span>{{ yearValue }} ه ش</span>
         </span>
         <span id="filters">
@@ -267,18 +273,25 @@ onMounted(async () => {
           </div>
           <div class="input-group">
             <!-- <div class="select-o"> -->
-            <input id="semester" type="text" v-model="yearStr" @focus="semFilterDrop = true"
-              @blur="semFilterDrop = false" placeholder="جستجوی سال" required autocomplete="false">
+            <input id="semester" type="text" v-model="yearStr" @focus="semFilterDrop = true" @blur="semFilterDrop = false"
+              placeholder="جستجوی سال" required autocomplete="false">
             <TransitionGroup name="list" appear>
               <ul class="select-ul" v-if="semFilterDrop">
                 <li v-for="(year, index) in yearData" :key="index" @click="filterByYear(year)">
-                  {{year.year}}
+                  {{ year.year }}
                 </li>
               </ul>
             </TransitionGroup>
             <!-- </div> -->
           </div>
         </span>
+        <span id="add-sem-buttons">
+          <button @click="refresh">
+            <Icon>
+              <ArrowSync24Regular />
+            </Icon>
+          </button>
+      </span>
       </div>
       <div class="header2">
         <span id="num">شماره</span>
@@ -468,6 +481,8 @@ onMounted(async () => {
 
   }
 
+
+
   #filters {
     width: 50%;
     display: flex;
@@ -543,7 +558,7 @@ onMounted(async () => {
   #add-sem-buttons {
     display: flex;
     justify-content: center;
-    width: 15%;
+    width: 5%;
 
     button {
       background-color: transparent;
