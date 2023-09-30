@@ -32,11 +32,8 @@ onMounted(async () => {
 
   try {
     await Promise.all([
-      useMain.getYears(),
       useMain.getAllSemesters(),
       useMain.getAllSubjects(),
-      useMain.getAllSemesters(),
-
     ]);
 
     await useMain.getAllStudents(useMain.departments?.[0]?.department_id , useMain.studentYears?.[0]?.year);
@@ -47,12 +44,12 @@ onMounted(async () => {
 
     setTimeout(() => {
       isLoading.value = false;
-    }, 1000);
+    }, 500);
   } catch (error) {
     console.error('Error fetching data:', error);
     setTimeout(() => {
       isLoading.value = false;
-    }, 1500);
+    }, 500);
   }
 });
 </script>

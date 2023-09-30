@@ -463,7 +463,7 @@ export const mainStore = defineStore("main", () => {
   async function getYears() {
     try {
       let response = await axios.get("/students/years");
-      studentYears.value = response.data.years;
+      studentYears.value = response.data.years;   
     } catch (error:any) {
       if (error.response.status == 401) {
         destroyToken();

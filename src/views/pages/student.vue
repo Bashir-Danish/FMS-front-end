@@ -36,7 +36,7 @@ const selectedStudent = ref<Student | null>(null);
 const semFilterDrop = ref(false)
 const depFilterDrop = ref(false)
 const depFilterText = ref()
-const yearValue = ref()
+const yearValue = ref(1390)
 const yearStr = ref()
 const depId = ref()
 const loader = ref(false)
@@ -66,6 +66,7 @@ const yearData = computed(() => {
 });
 
 const filterByDep = async (department: Department) => {
+  console.log(yearValue.value)
 
   loader.value = true
   depFilterText.value = ''
@@ -80,6 +81,8 @@ const filterByDep = async (department: Department) => {
 }
 
 const filterByYear = async (year: any) => {
+  console.log(yearValue.value)
+
   loader.value = true
   yearStr.value = ''
   yearValue.value = year.year
@@ -136,6 +139,7 @@ const handleSubmit = async () => {
     formData.value.current_semester = 0
     formData.value.year = 0
   }
+  await useMain.getYears()
 };
 
 const handleDelete = async (id: number) => {
@@ -147,6 +151,7 @@ const handleDelete = async (id: number) => {
       console.log(error);
     }
   }
+  await useMain.getYears()
 };
 
 const closeForm = () => {
@@ -285,13 +290,13 @@ onMounted(async () => {
             <!-- </div> -->
           </div>
         </span>
-        <span id="add-sem-buttons">
+        <!-- <span id="add-sem-buttons">
           <button @click="refresh">
             <Icon>
               <ArrowSync24Regular />
             </Icon>
           </button>
-      </span>
+      </span> -->
       </div>
       <div class="header2">
         <span id="num">شماره</span>
@@ -305,6 +310,11 @@ onMounted(async () => {
           <button @click="showCreateForm = true">
             <Icon>
               <Add />
+            </Icon>
+          </button>
+          <button @click="refresh">
+            <Icon>
+              <ArrowSync24Regular />
             </Icon>
           </button>
         </span>
@@ -375,14 +385,18 @@ onMounted(async () => {
 
   .loader {
     width: 100%;
-    height: calc(100vh - 6.5em);
+    // height: calc(100vh - 6.5em);
     display: flex;
     position: absolute;
     top: 0;
     left: 0;
-    // background: rgba(255, 255, 255, 0.4);
+    background: transparent;
+    box-shadow: 0 2px 3px 0 rgba(31, 38, 135, 0.37),
+      0 -1px 3px 0 rgba(116, 119, 156, 0.085);
     backdrop-filter: blur(0px);
+    border: none;
     -webkit-backdrop-filter: blur(0px);
+    border-radius: 10px;
     z-index: 100;
     align-items: center;
     justify-content: center;

@@ -3,14 +3,12 @@ import { RouterView } from "vue-router";
 import { mainStore } from '@/stores/main';
 import { useAuthStore} from '@/stores/auth';
 import Notification from "@/components/Notification.vue";
-import { onMounted } from "vue";
+import { onMounted,onBeforeMount} from "vue";
 
 const useAuth = useAuthStore();
 const useMain = mainStore();
 
-onMounted(async () => {
-
-
+onBeforeMount(async () => {
   try {
     await Promise.all([
       useAuth.getUserInfo(),
