@@ -11,8 +11,8 @@ const useMain = mainStore();
 onBeforeMount(async () => {
   try {
     await Promise.all([
-      useAuth.getUserInfo(),
       useMain.getYears(),
+      useAuth.getUserInfo(),
       useMain.getAllDepartments(),
     ]);
 

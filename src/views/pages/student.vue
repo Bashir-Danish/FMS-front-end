@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed ,watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { mainStore } from '@/stores/main';
 import BaseInput from "@/components/smallcomponents/baseinput.vue";
@@ -180,12 +180,16 @@ const selectImage = async (id?: number) => {
   }
 };
 
-onMounted(async () => {
+watch(()=> useMain.studentYears,()=>{
   depId.value = useMain.departments?.[0]?.department_id ?? 1;
   yearValue.value = useMain.studentYears?.[0]?.year
-  console.log(yearValue.value);
+})
+// onMounted(async () => {
+//   depId.value = useMain.departments?.[0]?.department_id ?? 1;
+//   yearValue.value = useMain.studentYears?.[0]?.year
+//   console.log(yearValue.value);
   
-});
+// });
 </script>
 
 <template>
