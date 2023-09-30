@@ -56,6 +56,7 @@ const handleSubmit = async () => {
       console.error('Error creating semester:', error);
     }
   } else if (showUpdateForm.value && selectedSemester.value) {
+    console.log('dtt')
     try {
       await useMain.updateSemester({
         semester_id: selectedSemester.value.semester_id,
@@ -70,7 +71,6 @@ const handleSubmit = async () => {
     }
   }
 };
-
 const handleDelete = async (id: number) => {
   const shouldDelete = window.confirm("Are you sure you want to delete this semester?");
   if (shouldDelete) {
