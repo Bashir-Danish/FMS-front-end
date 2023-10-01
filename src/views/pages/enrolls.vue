@@ -284,10 +284,8 @@ onMounted(() => {
                     @blur="semesterDrop = false" placeholder="سمستر مربوطه را انتخاب کنید" required autocomplete="false">
                   <TransitionGroup name="list" appear>
                     <ul class="select-ul" v-if="semesterDrop">
-                      <li v-for="semester in useMain.semesterData" :key="semester.semester_id"
-                        @click.self="selectSemester(semester)">
-                        <span @click.self="selectSemester(semester)">{{ translateSemesterNumber(semester.semester_number)
-                        }} {{ semester.name }} {{ semester.year }}</span>
+                      <li v-for="(semester, index) in semesterData" :key="index" @click.self="selectSemester(semester)">
+                        {{ translateSemesterNumber(semester.semester_number) }} {{ semester.name }} {{ semester.year }}
                       </li>
                     </ul>
                   </TransitionGroup>
@@ -364,7 +362,13 @@ onMounted(() => {
             <!-- <Icon>
               <Print20Regular />
             </Icon> -->
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path><path d="M7 11l5 5l5-5"></path><path d="M12 4v12"></path></g></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path>
+                <path d="M7 11l5 5l5-5"></path>
+                <path d="M12 4v12"></path>
+              </g>
+            </svg>
           </button>
         </span>
       </div>
@@ -927,38 +931,58 @@ ul {
         .select-o {
           position: relative;
 
+          // .select-ul {
+          //   position: absolute;
+          //   width: 100%;
+          //   background: rgba(255, 255, 255, 1);
+          //   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+          //   border-radius: 5px;
+          //   max-height: 6em;
+          //   overflow-y: scroll;
+          //   list-style-type: none;
+          //   margin: 0;
+          //   padding: 0;
+          //   display: flex;
+          //   flex-direction: column;
+          //   justify-content: center;
+          //   align-items: center;
+          //   z-index: 10000;
+          //   @include scrollbar();
+
+          //   li {
+          //     height: 2em;
+          //     width: 100%;
+          //     display: flex;
+          //     justify-content: space-evenly;
+          //     cursor: pointer;
+
+          //     &:hover {
+          //       background: rgba(255, 255, 255, 1);
+          //     }
+
+          //     span {
+          //       height: 100%;
+          //     }
+          //   }
+          // }
           .select-ul {
+            max-height: 8rem;
             position: absolute;
+            top:2.9rem;
             width: 100%;
             background: rgba(255, 255, 255, 1);
             box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
             border-radius: 5px;
-            max-height: 6em;
-            overflow-y: scroll;
-            list-style-type: none;
-            margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
+            margin: 0;
+            overflow-y: scroll;
+
             @include scrollbar();
-
             li {
-              height: 2em;
-              width: 100%;
-              display: flex;
-              justify-content: space-evenly;
+              text-align: center;
+              max-height: 1.8em;
+              height: 1.8em;
               cursor: pointer;
-
-              &:hover {
-                background: rgba(255, 255, 255, 1);
-              }
-
-              span {
-                height: 100%;
-              }
             }
           }
         }
