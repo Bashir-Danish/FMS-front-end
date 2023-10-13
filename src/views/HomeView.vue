@@ -13,7 +13,7 @@ const routerViewStyle = ref({
   transition: "width 0.3s",
 });
 
-const isLoading = ref(true); 
+const isLoading = ref(true);
 
 watch(
   () => {
@@ -28,19 +28,19 @@ watch(
 );
 
 onMounted(async () => {
-  isLoading.value = true; 
+  isLoading.value = true;
 
   try {
     await Promise.all([
-    useAuth.getUserInfo(),
+      useAuth.getUserInfo(),
       useMain.getYears(),
       useMain.getAllDepartments(),
       useMain.getAllSemesters(),
       useMain.getAllSubjects(),
     ]);
 
-    await useMain.getAllStudents(useMain.departments?.[0]?.department_id , useMain.studentYears?.[0]?.year);
-    const res = await useMain.fetchEnrolls(useMain.departments?.[0]?.department_id , useMain.semesters?.[0]?.semester_id );
+    await useMain.getAllStudents(useMain.departments?.[0]?.department_id, useMain.studentYears?.[0]?.year);
+    const res = await useMain.fetchEnrolls(useMain.departments?.[0]?.department_id, useMain.semesters?.[0]?.semester_id);
 
     useMain.enrollments.enrollment = res.enrollments;
     useMain.enrollments.subjects = res.subjects;
@@ -73,7 +73,7 @@ onMounted(async () => {
           </div>
         </div>
 
-        <router-view/>
+        <router-view />
       </div>
     </div>
   </div>
@@ -119,6 +119,7 @@ onMounted(async () => {
   direction: rtl;
   border-radius: 1rem;
 }
+
 .dark-container {
   background-color: #0000003f;
   width: 100%;
@@ -135,6 +136,7 @@ onMounted(async () => {
     @include scrollbar();
   }
 }
+
 .loader {
   position: absolute;
   top: 0;

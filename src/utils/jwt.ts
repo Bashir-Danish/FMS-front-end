@@ -20,7 +20,6 @@ export const getToken = () => {
 
 export const saveToken = (token: string) => {
   window.localStorage.setItem('tokenId', token);
-
 };
 export const destroyToken = () => {
   window.localStorage.removeItem('tokenId');
