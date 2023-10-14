@@ -144,19 +144,19 @@ const closeAllChildren = () => {
   }
 };
 const isActive = computed(() => {
-  const path =route.fullPath.split("/").filter(Boolean);
-  if (path.length ==1) {
+  const path = route.fullPath.split("/").filter(Boolean);
+  if (path.length == 1) {
     return "/" + route.fullPath.split("/")[1]
-  }  else if(path.length ==2) {
-    return  "/" + route.fullPath.split("/")[1]+"/"+route.fullPath.split("/")[2];
-  }else{
+  } else if (path.length == 2) {
+    return "/" + route.fullPath.split("/")[1] + "/" + route.fullPath.split("/")[2];
+  } else {
     return "/"
   }
 });
 const navigate = (link: string) => router.push(link);
 </script>
 <template>
-  <aside class="sidebar" :class="{ 'sidebar-open': useMain.sideBar }" @mouseleave="closeAllChildren">
+  <aside class="sidebar" :class="{ 'sidebar-open': useMain.sideBar }"  @mouseleave="closeAllChildren">
     <div :class="useMain.sideBar ? 'side-logo' : 'side-logo-2'">
       <div @click.native="useMain.sideBar = !useMain.sideBar" class="side-button">
         <Icon>
@@ -239,8 +239,9 @@ const navigate = (link: string) => router.push(link);
   display: flex;
   flex-direction: column;
   align-items: end;
-  z-index: 100;
+
   overflow: hidden;
+
   .side-logo {
     width: 100%;
     // height: 4rem;
@@ -275,6 +276,7 @@ const navigate = (link: string) => router.push(link);
       width: 2.5rem;
       height: 2.5rem;
       border-radius: 50%;
+      margin-left: 1rem;
     }
   }
 
@@ -387,10 +389,8 @@ const navigate = (link: string) => router.push(link);
         }
 
         &.active {
-
-          
           color: $primary;
-          
+
           background: rgba(255, 255, 255, 0.45);
           border-radius: 16px;
           // backdrop-filter: blur(5px);
@@ -477,6 +477,7 @@ const navigate = (link: string) => router.push(link);
       }
 
       .close-child2 {
+        display: none;
         height: 0;
         opacity: 0;
       }
@@ -484,6 +485,8 @@ const navigate = (link: string) => router.push(link);
       .children2 {
         position: absolute;
         left: -8rem;
+        z-index: 100000;
+      
         top: 0.5rem;
         background: rgba(255, 255, 255, 0.88);
         border-radius: 16px;

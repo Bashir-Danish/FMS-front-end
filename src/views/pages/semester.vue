@@ -123,6 +123,17 @@ const sendSemesterToUpdate = async () => {
   useMain.semesterSTR = ''
   closeForm()
 }
+const sortedSemesters = computed(() => {
+  const Semesters = useMain.semesters.slice().sort((a, b) => {
+    if (a.is_passed === b.is_passed) {
+      return b.year - a.year;
+    }
+ 
+    return a.is_passed ? 1 : -1;
+  });
+
+  return Semesters;
+})
 onMounted(async () => {
   // await useMain.getAllSemesters();
 });
@@ -260,7 +271,7 @@ onMounted(async () => {
         </span>
       </div>
       <ul>
-        <li v-for="(semester, index) in useMain.semesters" :key="semester.semester_id" class="item">
+        <li v-for="(semester, index) in sortedSemesters" :key="semester.semester_id" class="item">
           <div class="list-item-content">
             <span class="number">{{ index + 1 }}</span>
             <p class="semester-name">{{ semester.name }}</p>

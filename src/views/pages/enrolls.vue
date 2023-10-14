@@ -72,12 +72,12 @@ const processExcelData = async () => {
         await useMain.importGrade(formData.value.department_id, formData.value.semester_id, formData.value.grades);
         closeForm()
         let res = await useMain.fetchEnrolls(useMain.enrollDepId, useMain.enrollSemId)
-        setTimeout(() => {
+    
           useMain.enrollments.enrollment = res.enrollments
           useMain.enrollments.subjects = res.subjects
           console.log(useMain.enrollments.enrollment)
           loader.value = false
-        }, 50);
+    
       } catch (error) {
         console.error("Error sending grade import request:", error);
       }
@@ -103,17 +103,33 @@ const departmentData = computed(() => {
 const semesterData = computed(() => {
   if (semFilterText.value) {
     const searchLowerCase = semFilterText.value.toLowerCase();
-    return useMain.semesters.filter((item) => {
+    const filteredSemesters = useMain.semesters.filter((item) => {
       const nameMatch = item.name?.toLowerCase().includes(searchLowerCase);
       const yearMatch = item.year.toString().includes(searchLowerCase);
-      const numberMatch = item.semester_number
-        .toString()
-        .includes(searchLowerCase);
+      const numberMatch = item.semester_number.toString().includes(searchLowerCase);
       return nameMatch || yearMatch || numberMatch;
     });
+
+    const sortedSemesters = filteredSemesters.slice().sort((a, b) => {
+      if (a.is_passed === b.is_passed) {
+        return 0;
+      }
+      return a.is_passed ? 1 : -1;
+    });
+
+    return sortedSemesters;
   }
-  return useMain.semesters;
+
+  const sortedSemesters = useMain.semesters.slice().sort((a, b) => {
+    if (a.is_passed === b.is_passed) {
+      return 0;
+    }
+    return a.is_passed ? 1 : -1;
+  });
+
+  return sortedSemesters;
 });
+
 const handleDelete = async (semesterId: number, departmentId: number) => {
   const shouldDelete = window.confirm("Are you sure you want to delete this all ?");
   if (shouldDelete) {
@@ -176,7 +192,7 @@ const closeForm = () => {
   showCreateForm.value = false;
   showUpdateForm.value = false;
 };
-const selectDepartement = (department: Department) => {
+const selectDepartment = (department: Department) => {
   useMain.departmentSTR = department.name
   formData.value.department_id = department.department_id;
 }
@@ -270,8 +286,8 @@ onMounted(() => {
                   <TransitionGroup name="list" appear>
                     <ul class="select-ul" v-if="departmentDrop">
                       <li v-for="department in useMain.departmentData" :key="department.department_id"
-                        @click.self="selectDepartement(department)">
-                        <span @click.self="selectDepartement(department)">{{ department.name }}</span>
+                        @click.self="selectDepartment(department)">
+                        <span @click.self="selectDepartment(department)">{{ department.name }}</span>
                       </li>
                     </ul>
                   </TransitionGroup>
@@ -286,6 +302,7 @@ onMounted(() => {
                     <ul class="select-ul" v-if="semesterDrop">
                       <li v-for="(semester, index) in semesterData" :key="index" @click.self="selectSemester(semester)">
                         {{ translateSemesterNumber(semester.semester_number) }} {{ semester.name }} {{ semester.year }}
+                        <span v-if="semester.is_passed === 1" class="tick-icon">&#10004;</span>
                       </li>
                     </ul>
                   </TransitionGroup>
@@ -339,8 +356,8 @@ onMounted(() => {
             <TransitionGroup name="list" appear>
               <ul class="select-ul" v-if="semFilterDrop">
                 <li v-for="(semester, index) in semesterData" :key="index" @click="filterBySem(semester)">
-                  {{ translateSemesterNumber(semester.semester_number) }} {{
-                    semester.name }} {{ semester.year }}
+                  {{ translateSemesterNumber(semester.semester_number) }} {{ semester.name }} {{ semester.year }}
+                  <span v-if="semester.is_passed === 1" class="tick-icon">&#10004;</span>
                 </li>
               </ul>
             </TransitionGroup>
@@ -554,6 +571,10 @@ ul {
             max-height: 1.8em;
             height: 1.8em;
             cursor: pointer;
+
+            .tick-icon {
+              font-size: 12px;
+            }
           }
         }
 
@@ -968,7 +989,7 @@ ul {
           .select-ul {
             max-height: 8rem;
             position: absolute;
-            top:2.9rem;
+            top: 2.9rem;
             width: 100%;
             background: rgba(255, 255, 255, 1);
             box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
@@ -978,11 +999,15 @@ ul {
             overflow-y: scroll;
 
             @include scrollbar();
+
             li {
               text-align: center;
               max-height: 1.8em;
               height: 1.8em;
               cursor: pointer;
+              .tick-icon {
+              font-size: 12px;
+            }
             }
           }
         }

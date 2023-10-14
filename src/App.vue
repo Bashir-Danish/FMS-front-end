@@ -7,6 +7,7 @@ import { onMounted,onBeforeMount} from "vue";
 
 const useAuth = useAuthStore();
 const useMain = mainStore();
+import SidBar from "@/components/sidBar.vue";
 
 onBeforeMount(async () => {
   try {
@@ -28,6 +29,8 @@ onBeforeMount(async () => {
     <Transition  name="bounce">
         <Notification v-if="useMain.errorMessage.message" />
     </Transition>
+    <!-- <SidBar /> -->
+
     <RouterView />
   </div>
 </template>

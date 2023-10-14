@@ -146,7 +146,7 @@ const translateSemesterNumber = (number: number) => {
     return "نامعلوم";
   }
 }
-const selectDepartement = (department: Department) => {
+const selectDepartment = (department: Department) => {
   useMain.departmentSTR = department.name
   formData.value.department_id = department.department_id;
 }
@@ -177,10 +177,10 @@ onMounted(async () => {
                   autocomplete="false">
                 <TransitionGroup name="list" appear>
                   <ul class="select-ul" v-if="departmentDrop">
-
+                    
                     <li v-for="department in useMain.departmentData" :key="department.department_id"
-                      @click.self="selectDepartement(department)">
-                      <span @click.self="selectDepartement(department)">{{ department.name }}</span>
+                      @click.self="selectDepartment(department)">
+                      <span @click.self="selectDepartment(department)">{{ department.name }}</span>
                     </li>
                   </ul>
                 </TransitionGroup>
@@ -479,29 +479,30 @@ ul {
 
         .subject-list {
           display: flex;
-          flex-wrap: wrap;
+          // flex-wrap: wrap;
           width: 65%;
           padding: 0;
           margin: 0;
 
           li {
-            // font-size: 16px;
+            
+            font-size: 13px;
             text-align: center;
             
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            margin: 0 .5rem;
-
-            width: 7rem;
+            // margin: 0 .3rem;
+            direction: ltr;
+            width: 5rem;
           min-width: 4rem;
-          max-width: 7rem;
+          max-width:5rem;
             border-right: 1px solid lighten($color-border, 5%);
+              margin: 0.5em;
 
             &:first-child {
               // border-left: 1px solid lighten($color-border, 5%);
               text-align: center;
-              margin-left: 1rem;
             }
           }
         }
