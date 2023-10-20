@@ -218,7 +218,7 @@ onMounted(async () => {
               <transition-group name="listTransition">
                 <li v-for="(semester, index) in semesterData" :key="index">
                   <span>{{ translateSemesterNumber(semester.semester_number) }}</span>
-                  <span>{{ semester.name }}d</span>
+                  <span>{{ semester.name }}</span>
                   <span>{{ semester.year }}</span>
                   <span class="add" @click="addToSavedSemester(semester)">
                     <Icon>
