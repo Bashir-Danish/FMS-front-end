@@ -4,7 +4,7 @@ export interface User {
   lastName: string;
   email: string;
   userType: string;
-  picture:File | null
+  picture: File | null;
 }
 
 export interface Department {
@@ -17,7 +17,7 @@ export interface Semester {
   name: string;
   year: number;
   semester_number: number;
-  is_passed:number
+  is_passed: number;
 }
 
 export interface Student {
@@ -26,18 +26,18 @@ export interface Student {
   fname: string;
   ssid: number;
   department_id: number;
-  picture: string; 
-  current_semester:number;
-  year:number;
+  picture: string;
+  current_semester: number;
+  year: number;
+  graduated: number;
 }
-
 
 export interface Subject {
   subject_id: number;
   name: string;
   credit: number;
   department_id: number;
-  semester_id:number;
+  semester_id: number;
 }
 
 export interface Enrollment {

@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 
 <script setup lang="ts">
-import { ref, onMounted, computed ,watch } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { mainStore } from '@/stores/main';
 import BaseInput from "@/components/smallcomponents/baseinput.vue";
@@ -28,7 +28,8 @@ const formData = ref({
   department_id: 0,
   picture: '',
   current_semester: 0,
-  year: 0
+  year: 0,
+  graduated: 0
 });
 const showCreateForm = ref(false);
 const showUpdateForm = ref(false);
@@ -128,7 +129,8 @@ const handleSubmit = async () => {
         department_id: formData.value.department_id,
         picture: formData.value.picture,
         current_semester: formData.value.current_semester,
-        year: formData.value.year
+        year: formData.value.year,
+        graduated: formData.value.graduated
       });
       closeForm();
     } catch (error) {
@@ -166,7 +168,8 @@ const closeForm = () => {
     department_id: 0,
     picture: '',
     current_semester: 0,
-    year: 0
+    year: 0,
+    graduated: 0
   };
   showCreateForm.value = false;
   showUpdateForm.value = false;
@@ -329,9 +332,11 @@ const selectImage = async (id?: number) => {
           <div class="list-item-content">
             <span class="number">{{ index + 1 }}</span>
             <div class="student-picture">
-              <img v-if="student.picture" :src="useMain.baseUrl + student.picture" alt="" srcset="">
+              <img v-if="student.picture" :class="{ 'graduated-border': student.graduated == 1 }"
+                :src="useMain.baseUrl + student.picture" alt="" srcset="">
               <span v-else>No picture</span>
             </div>
+
             <p class="student-id">{{ student.ssid }}</p>
             <p class="student-name">{{ student.name }}</p>
             <p class="student-fname">{{ student.fname }}</p>
@@ -367,7 +372,7 @@ const selectImage = async (id?: number) => {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  
+
   background: rgba(255, 255, 255, 0.3);
   box-shadow: 0 2px 3px 0 rgba(31, 38, 135, 0.37),
     0 -1px 3px 0 rgba(116, 119, 156, 0.085);
@@ -468,7 +473,8 @@ const selectImage = async (id?: number) => {
       }
     }
   }
-  .empty-list-message{
+
+  .empty-list-message {
     margin: auto auto;
   }
 }
@@ -723,8 +729,14 @@ ul {
         align-items: center;
         justify-content: center;
 
+        .graduated-border {
+          border-bottom: 5px solid $primary;
+          border-left: 1px solid $primary;
+        }
+
         img {
           border: 1px solid $gray-2;
+          object-fit: cover;
           max-width: 3.5rem;
           min-width: 3.5rem;
           max-height: 3.5rem;

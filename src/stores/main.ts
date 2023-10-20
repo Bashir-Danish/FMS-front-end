@@ -537,6 +537,7 @@ export const mainStore = defineStore("main", () => {
           picture: res.data.student.picture,
           current_semester: res.data.student.current_semester,
           year: res.data.student.year,
+          graduated: 0
         });
         console.log(res.data);
       }
