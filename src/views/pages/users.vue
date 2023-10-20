@@ -1,3 +1,5 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import BaseInput from "@/components/smallcomponents/baseinput.vue";

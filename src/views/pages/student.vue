@@ -1,3 +1,5 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+
 <script setup lang="ts">
 import { ref, onMounted, computed ,watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';

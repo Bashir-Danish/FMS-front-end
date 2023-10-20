@@ -25,35 +25,38 @@ export const mainStore = defineStore("main", () => {
   // String for serach
   const semesterSTR = ref();
   const departmentSTR = ref();
-// main states
+  // main states
 
-const departments = ref<Department[]>([]);
-const semesters = ref<Semester[]>([]);
-const students = ref<Student[]>([]);
-const enrollments = ref({
-  enrollment: <any>[],
-  subjects: <any>[],
-});
-const File = ref<any[]>([]);
-const studentYears = ref<any[]>([]);
-const subjectItems = ref<any[]>([]);
-const subjectsPageRecord = ref<any[]>([]);
+  const departments = ref<Department[]>([]);
+  const semesters = ref<Semester[]>([]);
+  const students = ref<Student[]>([]);
+  const enrollments = ref({
+    enrollment: <any>[],
+    subjects: <any>[],
+  });
+  const File = ref<any[]>([]);
+  const studentYears = ref<any[]>([]);
+  const subjectItems = ref<any[]>([]);
+  const subjectsPageRecord = ref<any[]>([]);
 
-const errorMessage = ref({
-  title: "",
-  message: "",
-  success: false,
-});
-const router = useRouter();
+  const errorMessage = ref({
+    title: "",
+    message: "",
+    success: false,
+  });
+  const router = useRouter();
   const sideBar = ref(true);
   // enroll pages states
 
   const enrollDepId = ref();
   const enrollSemId = ref();
-  watch(() => semesters.value, () => {
-    enrollDepId.value = departments.value?.[0]?.department_id;
-    enrollSemId.value = semesters.value?.[0]?.semester_id;
-  })
+  watch(
+    () => semesters.value,
+    () => {
+      enrollDepId.value = departments.value?.[0]?.department_id;
+      enrollSemId.value = semesters.value?.[0]?.semester_id;
+    }
+  );
   // studnent pages states
   const studentDepId = ref();
   const studentYear = ref();
@@ -65,7 +68,6 @@ const router = useRouter();
       studentYear.value = studentYears.value?.[0]?.year;
     }
   );
-  
 
   const departmentData = computed(() => {
     if (departmentSTR.value) {
@@ -479,7 +481,7 @@ const router = useRouter();
   ////////////////////////////////////////////////////////////////////////
   async function getYears() {
     try {
-      let response = await axios.get("/students/years");
+      const response = await axios.get("/students/years");
       studentYears.value = response.data.years;
     } catch (error: any) {
       if (error.response.status == 401) {
@@ -492,7 +494,7 @@ const router = useRouter();
   // Get all students
   async function getAllStudents(departmentId: number, year: number) {
     try {
-      let response = await axios.get("/students", {
+      const response = await axios.get("/students", {
         params: {
           departmentId: departmentId,
           year: year,

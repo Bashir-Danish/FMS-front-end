@@ -1,3 +1,5 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { mainStore } from '@/stores/main';
@@ -17,8 +19,10 @@ const departmentDrop = ref(false)
 const formData = ref({
   department_id: 0,
   semester_id: 0,
-  subjects: <any>[]
+  subjects: [] as any[]
 });
+
+
 const sbjFormData = ref({
   subject_id: 0,
   credit: 0,

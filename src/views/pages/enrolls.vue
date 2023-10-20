@@ -1,9 +1,11 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import { mainStore } from '@/stores/main';
 import { type Semester, type Department } from '@/types/model';
 import { Icon } from "@vicons/utils";
-import { Delete24Regular, FolderAdd28Regular, Print20Regular } from "@vicons/fluent";
+import { FolderAdd28Regular, } from "@vicons/fluent";
 import * as XLSX from 'xlsx';
 import {
   ArrowSync24Regular
@@ -26,8 +28,9 @@ const semFilterText = ref()
 const formData = ref({
   department_id: 0,
   semester_id: 0,
-  grades: <any>[]
+  grades: []
 });
+
 
 const showCreateForm = ref(false);
 const showUpdateForm = ref(false);
@@ -72,12 +75,12 @@ const processExcelData = async () => {
         await useMain.importGrade(formData.value.department_id, formData.value.semester_id, formData.value.grades);
         closeForm()
         let res = await useMain.fetchEnrolls(useMain.enrollDepId, useMain.enrollSemId)
-    
-          useMain.enrollments.enrollment = res.enrollments
-          useMain.enrollments.subjects = res.subjects
-          console.log(useMain.enrollments.enrollment)
-          loader.value = false
-    
+
+        useMain.enrollments.enrollment = res.enrollments
+        useMain.enrollments.subjects = res.subjects
+        console.log(useMain.enrollments.enrollment)
+        loader.value = false
+
       } catch (error) {
         console.error("Error sending grade import request:", error);
       }
@@ -1005,9 +1008,10 @@ ul {
               max-height: 1.8em;
               height: 1.8em;
               cursor: pointer;
+
               .tick-icon {
-              font-size: 12px;
-            }
+                font-size: 12px;
+              }
             }
           }
         }

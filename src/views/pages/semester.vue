@@ -1,10 +1,12 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { mainStore } from '@/stores/main';
 import { type Semester } from '@/types/model';
 import { Icon } from "@vicons/utils";
 import { Delete24Regular, ArrowCollapseAll20Regular, ArrowAutofitHeightDotted20Filled } from "@vicons/fluent";
-import BaseInput from "@/components/smallcomponents/baseinput.vue";
+
 import {
   Add,
   PencilOutline,
@@ -22,7 +24,7 @@ const showUpdateForm = ref(false);
 const semSaveChange = ref(false);
 
 const selectedSemester = ref<Semester | null>(null);
-const semesterToChange = ref<Semester[]>([])
+const semesterToChange = ref<any[]>([])
 const seasons = ['بهاری', 'تابستانی', 'خزانی', 'زمستانی'];
 
 const semesterData = computed(() => {
@@ -105,30 +107,47 @@ const translateSemesterNumber = (number: number) => {
   }
 }
 const filterSavedSemester = (semester_id: number) => {
-  semesterToChange.value = semesterToChange.value.filter(s => s.semester_id != semester_id)
+  semesterToChange.value = semesterToChange.value.filter(s => s.semester.semester_id != semester_id)
 }
 const addToSavedSemester = (semester: Semester) => {
-  const existingSemester = semesterToChange.value.find(s => s.semester_id === semester.semester_id);
+  const existingSemester = semesterToChange.value.find((s) => s.semester.semester_id === semester.semester_id);
   if (!existingSemester) {
-    semesterToChange.value.push(semester);
+    semesterToChange.value.push({
+      semester: semester,
+      isFinished: false,
+    });
   }
-}
-const sendSemesterToUpdate = async () => {
-  let data = <any>[]
-  semesterToChange.value.forEach(element => {
-    data.push(element.semester_id);
-  });
+};
 
-  await useMain.processEnrolls(data)
-  useMain.semesterSTR = ''
-  closeForm()
+const sendSemesterToUpdate = async () => {
+  let data: any[] = [];
+  semesterToChange.value.forEach((element) => {
+    data.push({
+      semester_id: element.semester.semester_id,
+      isFinished: element.isFinished,
+    });
+  });
+  await useMain.processEnrolls(data);
+  useMain.semesterSTR = '';
+  closeForm();
+};
+
+const handleSwitchClick = (semester: any) => {
+  console.log(semester);
+
 }
+
 const sortedSemesters = computed(() => {
   const Semesters = useMain.semesters.slice().sort((a, b) => {
     if (a.is_passed === b.is_passed) {
+      if (a.year === b.year) {
+
+        return a.semester_number - b.semester_number;
+      }
+
       return b.year - a.year;
     }
- 
+
     return a.is_passed ? 1 : -1;
   });
 
@@ -199,7 +218,7 @@ onMounted(async () => {
               <transition-group name="listTransition">
                 <li v-for="(semester, index) in semesterData" :key="index">
                   <span>{{ translateSemesterNumber(semester.semester_number) }}</span>
-                  <span>{{ semester.name }}</span>
+                  <span>{{ semester.name }}d</span>
                   <span>{{ semester.year }}</span>
                   <span class="add" @click="addToSavedSemester(semester)">
                     <Icon>
@@ -217,10 +236,15 @@ onMounted(async () => {
             <ul class="edit-semester-ul">
               <transition-group name="listTransition" v-if="semesterToChange.length">
                 <li v-for="(semester, index) in semesterToChange" :key="index">
-                  <span>{{ translateSemesterNumber(semester.semester_number) }}</span>
-                  <span>{{ semester.name }}</span>
-                  <span>{{ semester.year }}</span>
-                  <span class="trash" @click="filterSavedSemester(semester.semester_id)">
+                  <span>{{ translateSemesterNumber(semester.semester.semester_number) }}</span>
+                  <span>{{ semester.semester.name }}</span>
+                  <span>{{ semester.semester.year }}</span>
+                  <label class="switch" v-if="semester.semester.semester_number == 8">
+                    <span>تمام شده </span>
+                    <input type="checkbox" v-model="semester.isFinished">
+                    <span class="slider round"></span>
+                  </label>
+                  <span class="trash" @click="filterSavedSemester(semester.semester.semester_id)">
                     <Icon>
                       <Delete24Regular />
                     </Icon>
@@ -649,16 +673,16 @@ ul {
           transition: 0.3s ease all;
           box-shadow: 0 2px 3px 0 rgba(136, 137, 138, 0.37),
             0 -1px 3px 0 rgba(160, 160, 160, 0.085);
-          // border-bottom: #cccccc 1px solid;
           position: relative;
           color: rgba(0, 0, 0, 0.7);
 
           span {
-            width: 20%;
+            width: 18%;
             padding-right: 1em;
 
             &:last-child {
-              width: 40%;
+              // width: 35%;
+              width: 90px;
             }
           }
 
@@ -689,6 +713,73 @@ ul {
 
           &:hover {
             background: rgba(244, 245, 247)
+          }
+
+          .switch {
+            position: relative;
+            display: inline-block;
+            width: 100px;
+            height: 20px;
+
+            span {
+              &:first-child {
+                float: left;
+                width: 70px;
+              }
+            }
+          }
+
+          .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+          }
+
+          .slider {
+            position: absolute;
+            width: 30px !important;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+          }
+
+          .slider:before {
+            position: absolute;
+            content: "";
+            height: 15px;
+            width: 15px;
+            left: 4px;
+            bottom: 2.5px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+          }
+
+          input:checked+.slider {
+            background-color: #2196F3;
+          }
+
+          input:focus+.slider {
+            box-shadow: 0 0 1px #2196F3;
+          }
+
+          input:checked+.slider:before {
+            -webkit-transform: translateX(10px);
+            -ms-transform: translateX(10px);
+            transform: translateX(10px);
+          }
+
+          .slider.round {
+            border-radius: 34px;
+          }
+
+          .slider.round:before {
+            border-radius: 50%;
           }
         }
 
