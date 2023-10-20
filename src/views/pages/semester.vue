@@ -190,7 +190,7 @@ onMounted(async () => {
                 <label for="year">سال:</label>
                 <select v-model="formData.year" id="year" class="custom-select">
                   <option value="" disabled selected>انتخاب سال</option>
-                  <option v-for="i in 50" :key="1370 + i" :value="1370 + 50 - i">{{ 1370 + 50 - i }}</option>
+                  <option v-for="i in 50" :key="1370 + i" :value="1390 + 50 - i">{{ 1390 + 50 - i }}</option>
                 </select>
               </div>
               <div class="input-group">
