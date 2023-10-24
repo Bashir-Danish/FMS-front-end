@@ -38,6 +38,7 @@ export const mainStore = defineStore("main", () => {
   const studentYears = ref<any[]>([]);
   const subjectItems = ref<any[]>([]);
   const subjectsPageRecord = ref<any[]>([]);
+  const homeReport = ref();
 
   const errorMessage = ref({
     title: "",
@@ -110,11 +111,22 @@ export const mainStore = defineStore("main", () => {
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////    Department     /////////////////////////////
   ////////////////////////////////////////////////////////////////////////
-
   async function getAllDepartments() {
     try {
       const res = await axios.get("/departments");
       departments.value = res.data;
+    } catch (error: any) {
+      if (error.response.status == 401) {
+        destroyToken();
+        router.push("/login");
+      }
+      // console.error("Error retrieving departments:", error);
+    }
+  }
+  async function getHomeReport() {
+    try {
+      const res = await axios.get("/departments/report");
+      homeReport.value = res.data;
     } catch (error: any) {
       if (error.response.status == 401) {
         destroyToken();
@@ -537,7 +549,7 @@ export const mainStore = defineStore("main", () => {
           picture: res.data.student.picture,
           current_semester: res.data.student.current_semester,
           year: res.data.student.year,
-          graduated: 0
+          graduated: 0,
         });
         console.log(res.data);
       }
@@ -655,6 +667,8 @@ export const mainStore = defineStore("main", () => {
     enrollSemId,
     studentDepId,
     studentYear,
+    homeReport,
+    getHomeReport,
     // openConfirmDialog,
     // closeConfirmDialog,
     // confirmDialog

@@ -9,7 +9,9 @@ import {
   PeopleTeam28Regular,
   PeopleSync16Regular,
   Apps28Regular,
-  Person24Regular
+  Person24Regular,
+  CalendarPerson20Regular,
+  CalendarSync24Regular
 } from "@vicons/fluent";
 
 import {
@@ -39,7 +41,7 @@ const useMain = mainStore();
             </span>
             <span class="details">
               <span>کل محصلین </span>
-              <span>3270</span>
+              <span>{{ useMain.homeReport?.total_students ?? 1300 }} </span>
             </span>
           </div>
           <div class="card-item">
@@ -50,7 +52,8 @@ const useMain = mainStore();
             </span>
             <span class="details">
               <span> محصلین برحال</span>
-              <span>170</span>
+              <span>{{ useMain.homeReport?.ungraduated_students ?? 200 }}</span>
+
             </span>
           </div>
         </div>
@@ -60,23 +63,24 @@ const useMain = mainStore();
           <div class="card-item">
             <span class="icon">
               <Icon size="40">
-                <PeopleTeam28Regular />
+                <CalendarPerson20Regular />
               </Icon>
             </span>
             <span class="details">
-              <span> محصلین برحال</span>
-              <span>270</span>
+              <span>تعداد سمستر ها</span>
+              <span>{{ useMain.homeReport?.total_semesters ?? 23 }}</span>
             </span>
           </div>
           <div class="card-item">
             <span class="icon">
               <Icon size="40">
-                <PeopleTeam28Regular />
+                <CalendarSync24Regular />
               </Icon>
             </span>
             <span class="details">
-              <span> محصلین برحال</span>
-              <span>270</span>
+              <span>سمستر های در جریان</span>
+              <span>{{ useMain.homeReport?.unPassedSemesters ?? 2 }}</span>
+
             </span>
           </div>
         </div>
@@ -91,7 +95,7 @@ const useMain = mainStore();
             </span>
             <span class="details">
               <span>دیپارتمنت ها</span>
-              <span>3</span>
+              <span>{{ useMain.homeReport?.total_Department ?? 2 }}</span>
             </span>
           </div>
           <div class="card-item">
@@ -102,7 +106,7 @@ const useMain = mainStore();
             </span>
             <span class="details">
               <span>تعداد کاربران</span>
-              <span>11</span>
+              <span>{{ useMain.homeReport?.total_users ?? 5 }}</span>
             </span>
           </div>
         </div>
@@ -190,7 +194,7 @@ const useMain = mainStore();
             0 1px 1px 0 rgba(116, 119, 156, 0.085);
           border: 2px solid rgba(255, 255, 255, 0.98);
           border-radius: 7px;
-      overflow: hidden;
+          overflow: hidden;
 
 
           .icon {

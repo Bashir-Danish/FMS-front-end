@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router";
 import { mainStore } from '@/stores/main';
-import { useAuthStore} from '@/stores/auth';
+import { useAuthStore } from '@/stores/auth';
 import Notification from "@/components/Notification.vue";
-import { onMounted,onBeforeMount} from "vue";
+import { onMounted, onBeforeMount } from "vue";
 
 const useAuth = useAuthStore();
 const useMain = mainStore();
@@ -15,6 +15,7 @@ onBeforeMount(async () => {
       useMain.getYears(),
       useAuth.getUserInfo(),
       useMain.getAllDepartments(),
+      useMain.getHomeReport()
     ]);
 
   } catch (error) {
@@ -26,8 +27,8 @@ onBeforeMount(async () => {
 
 <template>
   <div class="main">
-    <Transition  name="bounce">
-        <Notification v-if="useMain.errorMessage.message" />
+    <Transition name="bounce">
+      <Notification v-if="useMain.errorMessage.message" />
     </Transition>
     <!-- <SidBar /> -->
 
@@ -54,6 +55,7 @@ onBeforeMount(async () => {
   position: relative;
   font-family: 'Lexend';
   color: $dOp-7;
+
   &::before,
   &::after {
     content: "";
@@ -85,6 +87,7 @@ onBeforeMount(async () => {
     0% {
       transform: translate(-170, -170);
     }
+
     100% {
       transform: translate(150px, 150px);
     }
@@ -94,11 +97,13 @@ onBeforeMount(async () => {
     0% {
       transform: translate(-155px, -170px);
     }
+
     100% {
       transform: translate(150px, -155px);
     }
   }
 }
+
 // .app {
 //   position: relative;
 //   width: 100vw;
