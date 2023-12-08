@@ -53,8 +53,8 @@ const handleLoginSubmit = async (event: { preventDefault: () => void }) => {
 
         <div class="options">
           <label>
-            <input type="checkbox" v-model="remember" :value="remember" /> مرا به خاطر بسپار به
-            مدت 20 روز
+            <input type="checkbox" v-model="remember" :value="remember" /> مرا به خاطر بسپارید
+           
           </label>
           <p>فراموشی رمز عبور</p>
         </div>
