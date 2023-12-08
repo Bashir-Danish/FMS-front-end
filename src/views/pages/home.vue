@@ -112,9 +112,9 @@ const useMain = mainStore();
         </div>
       </div>
     </div>
-    <div class="section-2">
+    <!-- <div class="section-2">
 
-    </div>
+    </div> -->
   </div>
 </template>
 

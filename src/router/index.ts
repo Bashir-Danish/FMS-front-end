@@ -91,17 +91,17 @@ router.beforeEach((to, from, next) => {
   document.title = String(to.meta.title) || 'FMS';
   next();
 });
-router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.isAuthenticated)) {
+// router.beforeEach((to, from, next) => {
+//   if (to.matched.some(record => record.meta.isAuthenticated)) {
     
-    if (isAuth()) {
-      next();
-    } else {
-      next('/login');
-    }
-  } else {
-    next(); 
-  }
-});
+//     if (isAuth()) {
+//       next();
+//     } else {
+//       next('/login');
+//     }
+//   } else {
+//     next(); 
+//   }
+// });
 
 export default router

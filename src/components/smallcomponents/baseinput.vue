@@ -64,7 +64,6 @@ function validate() {
     }
 }
 
-
 onMounted(() => {
     mColor.value = false;
 });

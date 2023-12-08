@@ -63,7 +63,7 @@ export const useAuthStore = defineStore("auth", () => {
     let userIdValue = null;
 
     if (token) {
-      const value = token.trim().split("=");
+        const value = token.trim().split("=");
         const parts = value[0].split(".");
         if (parts.length === 3) {
           try {

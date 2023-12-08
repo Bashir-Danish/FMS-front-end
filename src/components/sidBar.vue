@@ -3,6 +3,8 @@ import { computed, ref, watch, reactive } from "vue";
 import { mainStore } from "@/stores/main";
 import { useRoute, useRouter } from "vue-router";
 import { Icon } from "@vicons/utils";
+// import JalaliDatePicker from '@/components/date.vue';
+
 import {
   CalendarPerson16Regular,
   ShoppingBag24Regular,
@@ -156,7 +158,7 @@ const isActive = computed(() => {
 const navigate = (link: string) => router.push(link);
 </script>
 <template>
-  <aside class="sidebar" :class="{ 'sidebar-open': useMain.sideBar }"  @mouseleave="closeAllChildren">
+  <aside class="sidebar" :class="{ 'sidebar-open': useMain.sideBar }" @mouseleave="closeAllChildren">
     <div :class="useMain.sideBar ? 'side-logo' : 'side-logo-2'">
       <div @click.native="useMain.sideBar = !useMain.sideBar" class="side-button">
         <Icon>
@@ -168,6 +170,7 @@ const navigate = (link: string) => router.push(link);
         <img src="@/assets/images/brand.png" alt="" srcset="" />
       </div>
     </div>
+    <!-- <jalali-date-picker></jalali-date-picker> -->
     <div class="side-items">
       <div v-for="item in items" :key="item.name" class="item">
         <div :class="{ active: isActive === item.link }" @click.native="handleItemClick(item)" class="item-details">
@@ -486,7 +489,7 @@ const navigate = (link: string) => router.push(link);
         position: absolute;
         left: -8rem;
         z-index: 100000;
-      
+
         top: 0.5rem;
         background: rgba(255, 255, 255, 0.88);
         border-radius: 16px;
