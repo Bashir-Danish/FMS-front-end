@@ -1,18 +1,30 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import {isAuth} from '@/utils/jwt'
 
-const HomeView = () => import('@/views/HomeView.vue')
-const AuthView = () => import('@/views/AuthView.vue')
-const notFound = () => import('@/views/notFound.vue')
-const Login = () => import('@/components/AuthComponent/LoginComponent.vue')
-const enrolls = () => import('@/views/pages/enrolls.vue')
-const department = () => import('@/views/pages/department.vue')
-const profile = () => import('@/views/pages/profile.vue')
-const semester = () => import('@/views/pages/semester.vue')
-const student = () => import('@/views/pages/student.vue')
-const subject = () => import('@/views/pages/subject.vue')
-const users = () => import('@/views/pages/users.vue')
-const home = () => import('@/views/pages/home.vue')
+// const HomeView = () => import('@/views/HomeView.vue')
+// const AuthView = () => import('@/views/AuthView.vue')
+// const notFound = () => import('@/views/notFound.vue')
+// const Login = () => import('@/components/AuthComponent/LoginComponent.vue')
+// const enrolls = () => import('@/views/pages/enrolls.vue')
+// const department = () => import('@/views/pages/department.vue')
+// const profile = () => import('@/views/pages/profile.vue')
+// const semester = () => import('@/views/pages/semester.vue')
+// const student = () => import('@/views/pages/student.vue')
+// const subject = () => import('@/views/pages/subject.vue')
+// const users = () => import('@/views/pages/users.vue')
+// const home = () => import('@/views/pages/home.vue')
+import HomeView from '@/views/HomeView.vue'
+import AuthView from '@/views/AuthView.vue'
+import notFound from '@/views/notFound.vue'
+import Login from '@/components/AuthComponent/LoginComponent.vue'
+import enrolls from '@/views/pages/enrolls.vue'
+import department from '@/views/pages/department.vue'
+import profile from '@/views/pages/profile.vue'
+import semester from '@/views/pages/semester.vue'
+import student from '@/views/pages/student.vue'
+import subject from '@/views/pages/subject.vue'
+import users from '@/views/pages/users.vue'
+import home from '@/views/pages/home.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
